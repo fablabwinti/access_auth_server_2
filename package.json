@@ -1,0 +1,27 @@
+{
+  "name": "Access Authentication Server",
+  "version": "1.0.0",
+  "description": "FabLab Access Authentication Server with REST API",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fablabwinti/access_auth_server.git"
+  },
+  "author": "Claudio Prezzi",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/fablabwinti/access_auth_server/issues"
+  },
+  "homepage": "https://github.com/fablabwinti/access_auth_server#readme",
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "mysql": "^2.13.0"
+  }
+}
