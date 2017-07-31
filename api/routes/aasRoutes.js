@@ -42,6 +42,17 @@ module.exports = function(app) {
     .delete(aas.delete_a_right);
 
     
+    // events Routes
+    app.route('/events')
+    .get(aas.list_all_events)
+    .post(aas.create_a_event);
+
+    app.route('/events/:eid')
+    .get(aas.read_a_event)
+    .put(aas.update_a_event)
+    .delete(aas.delete_a_event);
+
+    
     // logs Routes
     app.route('/logs')
     .get(aas.list_all_logs)
