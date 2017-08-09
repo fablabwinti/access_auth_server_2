@@ -1,5 +1,5 @@
 {
-  "name": "Access Authentication Server",
+  "name": "access_auth_server",
   "version": "1.0.0",
   "description": "FabLab Access Authentication Server with REST API",
   "main": "server.js",
@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "body-parser": "^1.17.2",
-    "express": "^4.15.3",
-    "mysql": "^2.13.0"
+    "express": "^4.15.4",
+    "mysql": "^2.13.0",
+    "pug": "^2.0.0-rc.3"
   }
 }

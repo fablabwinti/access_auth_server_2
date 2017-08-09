@@ -3,6 +3,10 @@
 module.exports = function(app) {
     var aas = require('../controllers/aasController');
 
+    // Frontend Routes
+    app.route('/')
+    .get(aas.get_frontend);
+    
     // machine Routes
     app.route('/machines')
     .get(aas.list_all_machines)

@@ -23,6 +23,12 @@ var pool = mysql.createPool({
 //    }
 //});
 
+// Frontend Forms ///////////
+exports.get_frontend = function(req, res) {
+  res.send('FabLab Machine Access Authentication Server');
+}
+
+// RestAPI //////////////////
 
 // MACHINES
 exports.list_all_machines = function(req, res) {
