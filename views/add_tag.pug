@@ -1,0 +1,19 @@
+doctype basic
+html
+  head
+    title!= title
+  body
+    block content
+        h1 #{message}
+
+        form(method='POST' action='/tags')
+            div.form-group
+                label(for='name') Name:
+                input#name.form-control(type='text', name='name' value=(undefined===tag ? '' : tag.name))
+                br
+                label(for='uid') Card UID:
+                input#uid.form-control(type='text', name='uid' value=(undefined===tag ? '' : tag.uid))
+                br
+                input#tid.form-control(type='hidden', name='tid' value=(undefined===tag ? '' : tag.tid))
+                br
+                button.btn.btn-primary(type='submit') Submit

@@ -16,11 +16,74 @@ exports.frontend = function(req, res) {
     res.render('welcome', { title: 'FabLab Access Auth', message: 'Hello there!'});
 }
 
+exports.add_tag = function(req, res) {
+    if (req.params.tid) {
+        var tags;
+        pool.getConnection(function(err,connection){
+            if (err) {
+              res.json({"code" : 100, "status" : "Error in connection database"});
+              return;
+            }  
+            console.log('connected as id ' + connection.threadId);
+
+            connection.query('SELECT * FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    tags = rows;
+                    res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry', tag: tags[0]});
+                }            
+            });
+            connection.release();
+
+            connection.on('error', function(err) {      
+                res.json({"code" : 100, "status" : "Error in connection database"});
+                return;
+            });
+        });
+    } else {
+        res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry'});
+    }
+}
+
 exports.add_log = function(req, res) {
-    var machines = [{mid:'1', name:'Lasersaur'}, {mid:'2', name:'Dioden Laser'}];
-    var tags = [{tid:'1', name:'Admin'}, {tid:'2', name:'Claudio Prezzi'}];
-    var events = [{eid:'1', name:'Tag login'}, {eid:'2', name:'Tag logout'}];
-    res.render('add_log', { title: 'FabLab Access Auth', message: 'Add Log Entry', machines: machines, tags: tags, events: events});
+    pool.getConnection(function(err,connection){
+        if (err) {
+          res.json({"code" : 100, "status" : "Error in connection database"});
+          return;
+        }  
+        console.log('connected as id ' + connection.threadId);
+        
+        var machines, tags, events;
+        connection.query('SELECT * FROM machines', function(error, rows, fields) {
+            if (error) {
+                res.send(error);
+            } else {
+                machines = rows;
+                connection.query('SELECT * FROM tags', function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tags = rows;
+                        connection.query('SELECT * FROM events', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                events = rows;
+                                res.render('add_log', {title: 'FabLab Access Auth', message: 'Add Log Entry', machines: machines, tags: tags, events: events});
+                            }            
+                        });
+                    }            
+                });
+            }            
+        });
+        connection.release();
+
+        connection.on('error', function(err) {      
+            res.json({"code" : 100, "status" : "Error in connection database"});
+            return;
+        });
+    });
 }
 
 

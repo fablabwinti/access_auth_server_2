@@ -7,6 +7,9 @@ module.exports = function(app) {
     app.route('/')
     .get(aas.frontend);
     
+    app.route('/add_tag')
+    .get(aas.add_tag);
+    
     app.route('/add_log')
     .get(aas.add_log);
     
