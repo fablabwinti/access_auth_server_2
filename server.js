@@ -12,7 +12,8 @@ app.use(bodyParser.json());
 // serve static content
 app.use(express.static('public'));
 
-// set views folder
+// set view engine and views folder
+app.set('view engine', 'pug');
 app.set('views', './views');
 
 // init routes

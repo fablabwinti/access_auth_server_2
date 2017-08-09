@@ -1,0 +1,28 @@
+doctype basic
+html
+  head
+    title!= title
+  body
+    block content
+        h1 #{message}
+
+        form(method='POST' action='http://localhost:3000/logs')
+            div.form-group
+                label(for='machines') Machines:
+                select#machines.form-control(name='machines')
+                    option(value=0) bitte auswählen
+                    each machine in machines
+                        option(value=machine.mid) #{machine.name}
+                label(for='tags') Tags:
+                select#tags.form-control(name='tags')
+                    option(value=0) bitte auswählen
+                    each tag in tags
+                        option(value=tag.tid) #{tag.name}
+                label(for='events') Events:
+                select#events.form-control(name='events')
+                    option(value=0) bitte auswählen
+                    each event in events
+                        option(value=event.eid) #{event.name}
+                label(for='remarks') Remarks:
+                input#name.form-control(type='text', name='remarks' value=(undefined===remarks ? '' : remarks.name))
+                button.btn.btn-primary(type='submit') Submit

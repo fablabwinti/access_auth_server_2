@@ -5,7 +5,11 @@ module.exports = function(app) {
 
     // Frontend Routes
     app.route('/')
-    .get(aas.get_frontend);
+    .get(aas.frontend);
+    
+    app.route('/add_log')
+    .get(aas.add_log);
+    
     
     // machine Routes
     app.route('/machines')

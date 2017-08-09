@@ -8,25 +8,21 @@ var pool = mysql.createPool({
     database : 'flauth',
     debug    :  false
 });
-//var connection = mysql.createConnection({
-//    host: '192.168.14.21',
-//    user: 'flauth',
-//    password: 'FabLab',
-//    database: 'flauth'    
-//});
-//
-//connection.connect(function(error) {
-//    if(!!error){
-//        console.log(error);
-//    } else {
-//        console.log('Connected');
-//    }
-//});
+
 
 // Frontend Forms ///////////
-exports.get_frontend = function(req, res) {
-  res.send('FabLab Machine Access Authentication Server');
+exports.frontend = function(req, res) {
+    //res.send('FabLab Machine Access Authentication Server');
+    res.render('welcome', { title: 'FabLab Access Auth', message: 'Hello there!'});
 }
+
+exports.add_log = function(req, res) {
+    var machines = [{mid:'1', name:'Lasersaur'}, {mid:'2', name:'Dioden Laser'}];
+    var tags = [{tid:'1', name:'Admin'}, {tid:'2', name:'Claudio Prezzi'}];
+    var events = [{eid:'1', name:'Tag login'}, {eid:'2', name:'Tag logout'}];
+    res.render('add_log', { title: 'FabLab Access Auth', message: 'Add Log Entry', machines: machines, tags: tags, events: events});
+}
+
 
 // RestAPI //////////////////
 
