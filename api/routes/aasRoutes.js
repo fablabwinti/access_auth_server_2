@@ -69,7 +69,7 @@ module.exports = function(app) {
     .get(aas.list_all_logs)
     .post(aas.create_a_log);
 
-    app.route('/logs/:tid')
+    app.route('/logs/:lid')
     .get(aas.read_a_log)
     .put(aas.update_a_log)
     .delete(aas.delete_a_log);
