@@ -98,7 +98,16 @@ exports.list_all_machines = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM machines', function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT * FROM machines' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -122,7 +131,16 @@ exports.list_all_machine_tags = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT t.*, r.start, r.end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE r.end>=now() AND r.mid=' + req.params.mid, function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT t.*, r.start, r.end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE r.end>=now() AND r.mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -146,7 +164,16 @@ exports.list_all_machine_logs = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM logs WHERE mid=' + req.params.mid, function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT * FROM logs WHERE mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -245,7 +272,16 @@ exports.list_all_tags = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM tags', function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT * FROM tags' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -305,7 +341,16 @@ exports.list_all_rights = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM rights', function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT * FROM rights' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -384,7 +429,16 @@ exports.list_all_events = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM events', function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT * FROM events' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -463,7 +517,16 @@ exports.list_all_logs = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM logs', function(error, rows, fields) {
+        var limit;
+        if (req.params.limit) {
+            limit = ' LIMIT ' + req.params.limit;
+        }        
+        var offset;
+        if (req.params.offset) {
+            offset = ' OFFSET ' + req.params.limit;
+        }
+        
+        connection.query('SELECT * FROM logs' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
