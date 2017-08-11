@@ -140,7 +140,7 @@ exports.list_all_machine_tags = function(req, res) {
             offset = ' OFFSET ' + req.query.offset;
         }
         
-        connection.query('SELECT t.*, r.start, r.end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE r.end>=now() AND r.mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT t.*, UNIX_TIMESTAMP(r.start) start, UNIX_TIMESTAMP(r.end) end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE r.end>=now() AND r.mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
