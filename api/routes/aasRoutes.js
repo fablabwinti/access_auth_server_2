@@ -7,11 +7,17 @@ module.exports = function(app) {
     app.route('/')
     .get(aas.frontend);
     
+    app.route('/tag_summary')
+    .get(aas.tag_summary)
+    .post(aas.tag_summary);
+    
     app.route('/add_tag')
-    .get(aas.add_tag);
+    .get(aas.add_tag)
+    .post(aas.add_tag);
     
     app.route('/add_log')
-    .get(aas.add_log);
+    .get(aas.add_log)
+    .post(aas.add_log);
     
     
     // machine Routes

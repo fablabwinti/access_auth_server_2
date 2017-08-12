@@ -1,3 +1,4 @@
+/*
 'use strict';
 var mysql = require('mysql');
 var Schema = mysql.Schema;
@@ -22,3 +23,4 @@ var TaskSchema = new Schema({
 });
 
 module.exports = mongoose.model('Tasks', TaskSchema);
+*/

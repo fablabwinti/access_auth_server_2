@@ -2,7 +2,7 @@
 var mysql = require('mysql');
 var pool = mysql.createPool({
     connectionLimit : 100, //important
-    host     : '192.168.14.21',
+    host     : 'localhost',
     user     : 'flauth',
     password : 'FabLab',
     database : 'flauth',
@@ -16,9 +16,53 @@ exports.frontend = function(req, res) {
     res.render('welcome', { title: 'FabLab Access Auth', message: 'Hello there!'});
 }
 
+exports.tag_summary = function(req, res) {
+    if (req.body.uid) {
+        pool.getConnection(function(err,connection){
+            if (err) {
+                res.json({"code" : 100, "status" : "Error in connection database"});
+                return;
+            }  
+            console.log('connected as id ' + connection.threadId);
+
+            var tag;
+            var logs = Array();
+            connection.query('SELECT * FROM tags WHERE uid=' + req.body.uid, function(error, rows, fields) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    if (rows[0]) {
+                        tag = rows[0];
+                        connection.query('SELECT date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN events e ON l.eid=e.eid WHERE tid=' + tag.tid + ' ORDER BY timestamp', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                logs = rows;
+                                res.render('tag_summary', {title: 'FabLab Access Auth', message: 'Tag Summary', tag: tag, logs: logs});
+                            }            
+                        });
+                    } else {
+                        res.render('tag_summary', {title: 'FabLab Access Auth', message: 'Tag Summary', tag: tag, logs: logs});
+                    }
+                }            
+            });
+            connection.release();
+
+            connection.on('error', function(err) {      
+                res.json({"code" : 100, "status" : "Error in connection database"});
+                return;
+            });
+        });
+    } else {
+        // show empty form to scan RFID
+        var tag;
+        var logs = Array();
+        res.render('tag_summary', {title: 'FabLab Access Auth', message: 'Tag Summary', tag: tag, logs: logs});
+    }
+}
+
 exports.add_tag = function(req, res) {
     if (req.params.tid) {
-        var tags;
         pool.getConnection(function(err,connection){
             if (err) {
               res.json({"code" : 100, "status" : "Error in connection database"});
@@ -30,8 +74,7 @@ exports.add_tag = function(req, res) {
                 if (error) {
                     res.send(error);
                 } else {
-                    tags = rows;
-                    res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry', tag: tags[0]});
+                    res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry', tag: rows[0]});
                 }            
             });
             connection.release();
@@ -54,7 +97,9 @@ exports.add_log = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        var machines, tags, events;
+        var machines = Array();
+        var tags = Array();
+        var events = Array();
         connection.query('SELECT * FROM machines', function(error, rows, fields) {
             if (error) {
                 res.send(error);
