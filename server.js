@@ -4,12 +4,16 @@ var port = process.env.PORT || 3000;
 var mysql = require('mysql');
 //var model = require('./api/models/aasModel');
 var bodyParser = require('body-parser');
-  
+
+// init bodyParser
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
 // Add headers
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -24,10 +28,6 @@ app.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
-
-// init bodyParser
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
 
 // serve static content
 app.use(express.static('public'));
