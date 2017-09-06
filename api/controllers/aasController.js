@@ -62,31 +62,7 @@ exports.tag_summary = function(req, res) {
 }
 
 exports.add_tag = function(req, res) {
-    if (req.params.tid) {
-        pool.getConnection(function(err,connection){
-            if (err) {
-              res.json({"code" : 100, "status" : "Error in connection database"});
-              return;
-            }  
-            console.log('connected as id ' + connection.threadId);
-
-            connection.query('SELECT * FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
-                if (error) {
-                    res.send(error);
-                } else {
-                    res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry', tag: rows[0]});
-                }            
-            });
-            connection.release();
-
-            connection.on('error', function(err) {      
-                res.json({"code" : 100, "status" : "Error in connection database"});
-                return;
-            });
-        });
-    } else {
-        res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry'});
-    }
+    res.render('add_tag', {title: 'FabLab Access Auth', message: 'Add Tag Entry'});
 }
 
 exports.add_log = function(req, res) {
@@ -343,7 +319,26 @@ exports.list_all_tags = function(req, res) {
 };
 
 exports.create_a_tag = function(req, res) {
-    res.json(req.body);
+    pool.getConnection(function(err,connection){
+        if (err) {
+          res.json({"code" : 100, "status" : "Error in connection database"});
+          return;
+        }  
+        console.log('connected as id ' + connection.threadId);
+        
+        //res.json(req.body);
+        connection.query('INSERT INTO tags SET ?', req.body, function(error, results, fields) {
+            connection.release();
+            if (error) throw error;
+            res.json(results);
+            // Neat!
+        });
+        
+        connection.on('error', function(err) {      
+            res.json({"code" : 100, "status" : "Error in connection database"});
+            return;    
+        });
+    });
 };
 
 exports.read_a_tag = function(req, res) {
