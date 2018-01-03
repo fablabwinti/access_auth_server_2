@@ -29,6 +29,7 @@ logfile.txt
 
 # OS generated files #
 ######################
+.credentials
 .DS_Store
 .DS_Store?
 ._*
@@ -43,3 +44,4 @@ node_modules
 # Local settings #
 ##################
 .env
+client-secret.json

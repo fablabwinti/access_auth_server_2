@@ -51,8 +51,8 @@ DROP TABLE IF EXISTS `logs`;
 CREATE TABLE `logs` (
   `lid` int(11) NOT NULL AUTO_INCREMENT,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `tid` int(11) DEFAULT NULL,
   `mid` int(11) DEFAULT NULL,
+  `tid` int(11) DEFAULT NULL,
   `eid` int(11) NOT NULL,
   `remarks` text,
   PRIMARY KEY (`lid`)
@@ -79,6 +79,7 @@ DROP TABLE IF EXISTS `machines`;
 CREATE TABLE `machines` (
   `mid` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
+  `config` varchar(50) NOT NULL,
   PRIMARY KEY (`mid`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -89,7 +90,7 @@ CREATE TABLE `machines` (
 
 LOCK TABLES `machines` WRITE;
 /*!40000 ALTER TABLE `machines` DISABLE KEYS */;
-INSERT INTO `machines` VALUES (1,'Lasersaur'),(2,'Laser klein'),(3,'CNC-Fräse'),(4,'Drehbank gross'),(5,'Drehbank klein'),(6,'3d-Drucker Einstein'),(7,'3d-Drucker Newton'),(8,'3d-Drucker Hawking'),(9,'3d-Drucker X400'),(10,'3d-Drucker Solidoodle'),(11,'3d-Drucker p3Steel');
+INSERT INTO `machines` VALUES (1,'Lasersaur',''),(2,'Laser klein',''),(3,'CNC-Fräse',''),(4,'Drehbank gross',''),(5,'Drehbank klein',''),(6,'3d-Drucker Einstein',''),(7,'3d-Drucker Newton',''),(8,'3d-Drucker Hawking',''),(9,'3d-Drucker X400',''),(10,'3d-Drucker Solidoodle',''),(11,'3d-Drucker p3Steel','');
 /*!40000 ALTER TABLE `machines` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -102,10 +103,10 @@ DROP TABLE IF EXISTS `rights`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `rights` (
   `rid` int(11) NOT NULL AUTO_INCREMENT,
-  `tid` int(11) NOT NULL,
   `mid` int(11) NOT NULL,
-  `start` date DEFAULT NULL,
-  `end` date DEFAULT NULL,
+  `tid` int(11) NOT NULL,
+  `start` timestamp DEFAULT NULL,
+  `end` timestamp DEFAULT NULL,
   PRIMARY KEY (`rid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -116,7 +117,7 @@ CREATE TABLE `rights` (
 
 LOCK TABLES `rights` WRITE;
 /*!40000 ALTER TABLE `rights` DISABLE KEYS */;
-INSERT INTO `rights` VALUES (1,1,1,'2017-06-01','2018-01-01'),(2,1,2,'2017-06-01','2018-01-01'),(3,1,3,'2017-06-01','2018-01-11'),(4,2,1,'2017-06-20','2018-01-01'),(5,2,2,'2017-06-25','2017-07-01');
+INSERT INTO `rights` VALUES (1,1,1,'2018-01-01','2019-01-01'),(2,1,2,'2018-01-01','2019-01-01'),(3,1,3,'2018-01-01','2019-01-11'),(4,2,1,'2018-01-01','2019-01-01'),(5,2,2,'2018-01-01','2019-01-01');
 /*!40000 ALTER TABLE `rights` ENABLE KEYS */;
 UNLOCK TABLES;
 

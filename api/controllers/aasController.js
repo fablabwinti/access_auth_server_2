@@ -62,7 +62,7 @@ exports.tag_summary = function(req, res) {
 }
 
 exports.add_tag = function(req, res) {
-    if (req.params.tid) {
+    if (req.body.tid) {
         pool.getConnection(function(err,connection){
             if (err) {
               res.json({"code" : 100, "status" : "Error in connection database"});
@@ -70,7 +70,7 @@ exports.add_tag = function(req, res) {
             }  
             console.log('connected as id ' + connection.threadId);
 
-            connection.query('SELECT * FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
+            connection.query('SELECT * FROM tags WHERE tid=' + req.body.tid, function(error, rows, fields) {
                 if (error) {
                     res.send(error);
                 } else {
@@ -638,4 +638,30 @@ exports.update_a_log = function(req, res) {
 };
 
 exports.delete_a_log = function(req, res) {
+};
+
+
+// TIMESTAMP
+exports.get_timestamp = function(req, res) {
+    pool.getConnection(function(err,connection){
+        if (err) {
+          res.json({"code" : 100, "status" : "Error in connection database"});
+          return;
+        }  
+        console.log('connected as id ' + connection.threadId);
+        
+        connection.query('SELECT UNIX_TIMESTAMP() timestamp', function(error, rows, fields) {
+            connection.release();
+            if (error) {
+                res.send(error);
+            } else {
+                res.json(rows);
+            }            
+        });
+
+        connection.on('error', function(err) {      
+            res.json({"code" : 100, "status" : "Error in connection database"});
+            return;    
+        });
+    });
 };

@@ -80,4 +80,9 @@ module.exports = function(app) {
     .put(aas.update_a_log)
     .delete(aas.delete_a_log);
 
+        
+    // timestamp Route
+    app.route('/timestamp')
+    .get(aas.get_timestamp)
+
 };
