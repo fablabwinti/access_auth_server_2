@@ -5,7 +5,7 @@ module.exports = function(app) {
 
     // Frontend Routes
     app.route('/')
-    .get(aas.frontend);
+    .get(aas.tag_summary);
     
     app.route('/tag_summary')
     .get(aas.tag_summary)

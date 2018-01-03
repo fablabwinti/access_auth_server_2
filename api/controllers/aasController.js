@@ -2,7 +2,7 @@
 var mysql = require('mysql');
 var pool = mysql.createPool({
     connectionLimit : 100, //important
-    host     : 'localhost',
+    host     : '192.168.14.21',
     user     : 'flauth',
     password : 'FabLab',
     database : 'flauth',
@@ -343,7 +343,26 @@ exports.list_all_tags = function(req, res) {
 };
 
 exports.create_a_tag = function(req, res) {
-    res.json(req.body);
+    pool.getConnection(function(err,connection){
+        if (err) {
+          res.json({"code" : 100, "status" : "Error in connection database"});
+          return;
+        }  
+        console.log('connected as id ' + connection.threadId);
+        
+        //res.json(req.body);
+        connection.query('INSERT INTO tags SET ?', req.body, function(error, results, fields) {
+            connection.release();
+            if (error) throw error;
+            res.json(results);
+            // Neat!
+        });
+        
+        connection.on('error', function(err) {      
+            res.json({"code" : 100, "status" : "Error in connection database"});
+            return;    
+        });
+    });
 };
 
 exports.read_a_tag = function(req, res) {
