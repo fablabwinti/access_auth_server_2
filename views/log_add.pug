@@ -1,0 +1,31 @@
+//- add_log.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/logs')
+        div.form-group
+            label(for='machines') Machines:
+            select#machines.form-control(name='mid')
+                option(value=0) bitte auswählen
+                each machine in machines
+                    option(value=machine.mid) #{machine.name}
+        div.form-group
+            label(for='tags') Tags:
+            select#tags.form-control(name='tid')
+                option(value=0) bitte auswählen
+                each tag in tags
+                    option(value=tag.tid) #{tag.name}
+        div.form-group
+            label(for='events') Events:
+            select#events.form-control(name='eid')
+                option(value=0) bitte auswählen
+                each event in events
+                    option(value=event.eid) #{event.name}
+        div.form-group
+            label(for='remarks') Remarks:
+            input#name.form-control(type='text', name='remarks' value=(undefined===remarks ? '' : remarks.name))
+
+        div.form-group
+            button.btn.btn-primary(type='submit') Submit
