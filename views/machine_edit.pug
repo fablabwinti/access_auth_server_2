@@ -4,7 +4,7 @@ extends layout
 block content
     h1 #{message}
 
-    form(method='POST' action='/machine_edit')
+    form(method='POST' action='/machine_edit' + (undefined===machine ? '' : '?mid=' + machine.mid))
         div.form-group
             label(for='name') Name:
             input#name.form-control(type='text', name='name' value=(undefined===machine ? '' : machine.name))

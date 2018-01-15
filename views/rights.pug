@@ -16,9 +16,9 @@ block content
             each right in rights
                 tr
                     td #{right.rid}
-                    td #{right.tid} 
-                    td #{right.mid}
+                    td #{right.tag} 
+                    td #{right.machine}
                     td #{right.start}
                     td #{right.end}
                     td
-                        a(href='/right_edit?tid=' + right.rid)= 'Edit'
+                        a(href='/right_edit?rid=' + right.rid)= 'Edit'

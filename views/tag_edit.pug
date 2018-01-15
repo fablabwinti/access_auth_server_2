@@ -4,7 +4,7 @@ extends layout
 block content
     h1 #{message}
 
-    form(method='POST' action='/tag_edit')
+    form(method='POST' action='/tag_edit' + (undefined===tag ? '' : '?tid=' + tag.tid))
         div.form-group
             label(for='uid') UID:
             input#uid.form-control(type='text', name='uid' value=(undefined===tag ? '' : tag.uid))

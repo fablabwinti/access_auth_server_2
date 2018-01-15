@@ -1,0 +1,27 @@
+//- right_edit.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/right_edit' + (undefined===right ? '' : '?rid=' + right.rid))
+        div.form-group
+            label(for='tag') Tag:
+            select#tag.form-control(name='tid')
+                option(value=0) bitte auswählen
+                each tag in tags
+                    option(value=tag.tid + (undefined===right ? '' : selected=(tag.tid==right.tid))) #{tag.name}
+        div.form-group
+            label(for='machines') Machine:
+            select#machines.form-control(name='mid')
+                option(value=0) bitte auswählen
+                each machine in machines
+                    option(value=machine.mid + (undefined===right ? '' : selected=(machine.mid==right.mid))) #{machine.name}
+        div.form-group
+            label(for='start') Start:
+            input#start.form-control(type='text', name='start' value=(undefined===right ? '' : right.start))
+        div.form-group
+            label(for='end') End:
+            input#end.form-control(type='text', name='end' value=(undefined===right ? '' : right.end))
+        div.form-group
+            button.btn.btn-primary(type='submit') Submit

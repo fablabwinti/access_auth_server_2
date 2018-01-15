@@ -96,7 +96,7 @@ exports.logs = function(req, res) {
         console.log('connected as id ' + connection.threadId);
 
         var logs = Array();
-        connection.query('SELECT l.timestamp, m.name machine, t.name tag, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid', function(error, rows, fields) {
+        connection.query('SELECT l.lid, l.timestamp, m.name machine, t.name tag, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
@@ -159,7 +159,8 @@ exports.rights = function(req, res) {
         console.log('connected as id ' + connection.threadId);
 
         var rights = Array();
-        connection.query('SELECT * FROM rights', function(error, rows, fields) {
+        connection.query('SELECT r.rid, t.name tag, m.name machine, r.start, r.end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
+        //connection.query('SELECT * FROM rights', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
@@ -173,216 +174,442 @@ exports.rights = function(req, res) {
 
 exports.tag_edit = function(req, res) {
     if (req.query.tid){
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
+        if (!req.body.uid){
+            // not post data -> load tag with given tid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-            var tag;
-            connection.query('SELECT * FROM tags WHERE tid=?', req.query.tid, function(error, rows, fields) {
-                connection.release();
-                if (error) {
-                    res.send(error);
-                } else {
-                    tag = rows[0];
-                    res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Edit Tag', menues: menues, tag: tag});
-                }            
+                var tag;
+                connection.query('SELECT * FROM tags WHERE tid=?', req.query.tid, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tag = rows[0];
+                        res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Edit Tag', menues: menues, tag: tag});
+                    }            
+                });
             });
-        });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE tags SET uid="' + req.body.uid + '", name="' + req.body.name + '" WHERE tid=' + req.query.tid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tag = rows[0];
+                        res.redirect('/tags');
+                    }            
+                });
+                connection.release();
+            });
+        }
     } else {
-        // no tid -> load empfty form to add new tag
-        var tag;
-        res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Add Tag', menues: menues, tag: tag});
+        if (!req.body.uid){
+            // no tid -> load empfty form to add new tag
+            var tag;
+            res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Add Tag', menues: menues, tag: tag});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT tags SET uid="' + req.body.uid + '", name="' + req.body.name + '"', function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tag = rows[0];
+                        res.redirect('/tags');
+                    }            
+                });
+            });
+        }
     }
 };
 
 exports.log_edit = function(req, res) {
     if (req.query.lid){
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
+        if (!req.body.timestamp){
+            // not post data -> load log with given lid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-            var log;
-            var machines = Array();
-            var tags = Array();
-            var events = Array();
-            connection.query('SELECT * FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
-                if (error) {
-                    res.send(error);
-                } else {
-                    log = rows[0];
-                    connection.query('SELECT * FROM machines', function(error, rows, fields) {
-                        if (error) {
-                            res.send(error);
-                        } else {
-                            machines = rows;
-                            connection.query('SELECT * FROM tags', function(error, rows, fields) {
-                                if (error) {
-                                    res.send(error);
-                                } else {
-                                    tags = rows;
-                                    connection.query('SELECT * FROM events', function(error, rows, fields) {
-                                        if (error) {
-                                            res.send(error);
-                                        } else {
-                                            events = rows;
-                                            res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Edit', menues: menues, machines: machines, tags: tags, events: events, log: log});
-                                        }            
-                                    });
-                                }            
-                            });
-                        }            
-                    });
-                }            
+                var log;
+                var machines = Array();
+                var tags = Array();
+                var events = Array();
+                connection.query('SELECT * FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        log = rows[0];
+                        connection.query('SELECT * FROM machines', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                machines = rows;
+                                connection.query('SELECT * FROM tags', function(error, rows, fields) {
+                                    if (error) {
+                                        res.send(error);
+                                    } else {
+                                        tags = rows;
+                                        connection.query('SELECT * FROM events', function(error, rows, fields) {
+                                            if (error) {
+                                                res.send(error);
+                                            } else {
+                                                events = rows;
+                                                res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Edit', menues: menues, machines: machines, tags: tags, events: events, log: log});
+                                            }            
+                                        });
+                                    }            
+                                });
+                            }            
+                        });
+                    }            
+                });
+                connection.release();
             });
-            connection.release();
-        });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE logs SET timestamp="' + req.body.timestamp + '", mid=' + req.body.mid + ', tid=' + req.body.tid + ', eid=' + req.body.eid + ', remarks="' + req.body.remarks + '" WHERE lid=' + req.query.lid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tag = rows[0];
+                        res.redirect('/logs');
+                    }            
+                });
+                connection.release();
+            });
+        }
     } else {
-        // no lid -> load empfty form to add new log
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
+        if (!req.body.timestamp){
+            // no lid -> load empfty form to add new log
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-            var log;
-            var machines = Array();
-            var tags = Array();
-            var events = Array();
-            connection.query('SELECT mid, name FROM machines', function(error, rows, fields) {
-                if (error) {
-                    res.send(error);
-                } else {
-                    machines = rows;
-                    connection.query('SELECT tid, name FROM tags', function(error, rows, fields) {
-                        if (error) {
-                            res.send(error);
-                        } else {
-                            tags = rows;
-                            connection.query('SELECT eid, name FROM events', function(error, rows, fields) {
-                                if (error) {
-                                    res.send(error);
-                                } else {
-                                    events = rows;
-                                    res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Log', menues: menues, machines: machines, tags: tags, events: events, log: log});
-                                }            
-                            });
-                        }            
-                    });
-                }            
+                var log;
+                var machines = Array();
+                var tags = Array();
+                var events = Array();
+                connection.query('SELECT mid, name FROM machines', function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        machines = rows;
+                        connection.query('SELECT tid, name FROM tags', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                tags = rows;
+                                connection.query('SELECT eid, name FROM events', function(error, rows, fields) {
+                                    if (error) {
+                                        res.send(error);
+                                    } else {
+                                        events = rows;
+                                        res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Log', menues: menues, machines: machines, tags: tags, events: events, log: log});
+                                    }            
+                                });
+                            }            
+                        });
+                    }            
+                });
+                connection.release();
             });
-            connection.release();
-        });
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT logs SET timestamp="' + req.body.timestamp + '", mid=' + req.body.mid + ', tid=' + req.body.tid + ', eid=' + req.body.eid + ', remarks="' + req.body.remarks + '"', function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tag = rows[0];
+                        res.redirect('/logs');
+                    }            
+                });
+            });
+        }
     }
 };
 
 exports.machine_edit = function(req, res) {
     if (req.query.mid){
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
+        if (!req.body.name){
+            // not post data -> load machine with given mid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-            var machine;
-            connection.query('SELECT * FROM machines WHERE mid=?', req.query.mid, function(error, rows, fields) {
-                connection.release();
-                if (error) {
-                    res.send(error);
-                } else {
-                    machine = rows[0];
-                    res.render('machine_edit', {title: 'FabLab Access Auth', message: 'Edit Machine', menues: menues, machine: machine});
-                }            
+                var machine;
+                connection.query('SELECT * FROM machines WHERE mid=?', req.query.mid, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        machine = rows[0];
+                        res.render('machine_edit', {title: 'FabLab Access Auth', message: 'Edit Machine', menues: menues, machine: machine});
+                    }            
+                });
             });
-        });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE machines SET name="' + req.body.name + '", config="' + req.body.config + '" WHERE mid=' + req.query.mid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/machines');
+                    }            
+                });
+                connection.release();
+            });
+        }
     } else {
-        // no mid -> load empfty form to add new machine
-        var machine;
-        res.render('machine_edit', {title: 'FabLab Access Auth', message: 'Add Machine', menues: menues, machine: machine});
+        if (!req.body.name){
+            // no mid -> load empfty form to add new machine
+            var machine;
+            res.render('machine_edit', {title: 'FabLab Access Auth', message: 'Add Machine', menues: menues, machine: machine});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT machines SET name="' + req.body.name + '", config="' + req.body.config + '"', function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/machines');
+                    }            
+                });
+            });
+        }
     }
 };
 
 exports.event_edit = function(req, res) {
     if (req.query.eid){
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
+        if (!req.body.name){
+            // not post data -> load event with given eid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-            var event;
-            connection.query('SELECT * FROM events WHERE eid=?', req.query.eid, function(error, rows, fields) {
-                connection.release();
-                if (error) {
-                    res.send(error);
-                } else {
-                    event = rows[0];
-                    res.render('event_edit', {title: 'FabLab Access Auth', message: 'Edit Event', menues: menues, event: event});
-                }            
+                var event;
+                connection.query('SELECT * FROM events WHERE eid=?', req.query.eid, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        event = rows[0];
+                        res.render('event_edit', {title: 'FabLab Access Auth', message: 'Edit Event', menues: menues, event: event});
+                    }            
+                });
             });
-        });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE events SET name="' + req.body.name + '" WHERE eid=' + req.query.eid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/events');
+                    }            
+                });
+                connection.release();
+            });
+        }
     } else {
-        // no eid -> load empfty form to add new event
-        var event;
-        res.render('event_edit', {title: 'FabLab Access Auth', message: 'Add Event', menues: menues, event: event});
+        if (!req.body.name){
+            // no eid -> load empfty form to add new event
+            var event;
+            res.render('event_edit', {title: 'FabLab Access Auth', message: 'Add Event', menues: menues, event: event});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT events SET name="' + req.body.name + '"', function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/events');
+                    }            
+                });
+            });
+        }
     }
 };
 
 exports.right_edit = function(req, res) {
     if (req.query.rid){
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
+        if (!req.body.tid){
+            // not post data -> load right with given rid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-            var right;
-            connection.query('SELECT * FROM rights WHERE rid=?', req.query.rid, function(error, rows, fields) {
+                var right;
+                var tags = Array();
+                var machines = Array();
+                connection.query('SELECT * FROM rights WHERE rid=?', req.query.rid, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        right = rows[0];
+                        connection.query('SELECT * FROM tags', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                tags = rows;
+                                connection.query('SELECT * FROM machines', function(error, rows, fields) {
+                                    if (error) {
+                                        res.send(error);
+                                    } else {
+                                        machines = rows;
+                                        res.render('right_edit', {title: 'FabLab Access Auth', message: 'Edit Right', menues: menues, right: right, tags: tags, machines: machines});
+                                    }
+                                });
+                            }
+                        });
+                    }    
+                });
+            });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE rights SET tid=' + req.body.tid + ', mid=' + req.body.mid + ', start="' + req.body.start + '", end="' + req.body.end + '" WHERE rid=' + req.query.rid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/events');
+                    }            
+                });
                 connection.release();
-                if (error) {
-                    res.send(error);
-                } else {
-                    right = rows[0];
-                    res.render('right_edit', {title: 'FabLab Access Auth', message: 'Edit Right', menues: menues, right: right});
-                }            
             });
-        });
+        }
     } else {
-        // no rid -> load empfty form to add new right
-        var right;
-        res.render('right_edit', {title: 'FabLab Access Auth', message: 'Add Right', menues: menues, right: right});
-    }
-};
+        if (!req.body.tid){
+            // no tid -> load empfty form to add new right
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-exports.tag_add = function(req, res) {
-    if (req.body.tid) {
-        pool.getConnection(function(err,connection){
-            if (err) {
-                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-                return;
-            }  
-            console.log('connected as id ' + connection.threadId);
-
-            connection.query('SELECT * FROM tags WHERE tid=' + req.body.tid, function(error, rows, fields) {
-                if (error) {
-                    res.send(error);
-                } else {
-                    res.render('tag_add', {title: 'FabLab Access Auth', message: 'Add Tag', menues: menues, tag: rows[0]});
-                }            
+                var right;
+                var tags = Array();
+                var machines = Array();
+                connection.query('SELECT * FROM tags', function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        tags = rows;
+                        connection.query('SELECT * FROM machines', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                machines = rows;
+                                res.render('right_edit', {title: 'FabLab Access Auth', message: 'Add Right', menues: menues, right: right, tags: tags, machines: machines});
+                            }
+                        });
+                    }
+                });
             });
-            connection.release();
-        });
-    } else {
-        res.render('tag_add', {title: 'FabLab Access Auth', message: 'Add Tag', menues: menues});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT rights SET tid=' + req.body.tid + ', mid=' + req.body.mid + ', start="' + req.body.start + '", end="' + req.body.end + '"', function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/events');
+                    }            
+                });
+            });
+        }
     }
 };
 

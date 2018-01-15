@@ -79,7 +79,7 @@ DROP TABLE IF EXISTS `machines`;
 CREATE TABLE `machines` (
   `mid` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL,
-  `config` varchar(50) NOT NULL,
+  `config` varchar(100) NOT NULL,
   PRIMARY KEY (`mid`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
