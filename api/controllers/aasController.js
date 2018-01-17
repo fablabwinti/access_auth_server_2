@@ -886,7 +886,7 @@ exports.read_a_tag = function(req, res) {
         }  
         console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
+        connection.query('SELECT *, name AS owner FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
