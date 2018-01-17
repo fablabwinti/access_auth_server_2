@@ -10,13 +10,19 @@ block content
             select#tag.form-control(name='tid' autofocus)
                 option(value=0) bitte auswählen
                 each tag in tags
-                    option(value=tag.tid + (undefined===right ? '' : selected=(tag.tid==right.tid))) #{tag.name}
+                    -if (undefined===right)
+                        option(value=tag.tid) #{tag.name}
+                    -else
+                        option(value=tag.tid selected=(tag.tid==right.tid)) #{tag.name}
         div.form-group
             label(for='machines') Machine:
             select#machines.form-control(name='mid')
                 option(value=0) bitte auswählen
                 each machine in machines
-                    option(value=machine.mid + (undefined===right ? '' : selected=(machine.mid==right.mid))) #{machine.name}
+                    -if (undefined===right)
+                        option(value=machine.mid) #{machine.name}
+                    -else
+                        option(value=machine.mid selected=(machine.mid==right.mid)) #{machine.name}
         div.form-group
             label(for='start') Start:
             input#start.form-control(type='text', name='start' value=(undefined===right ? '' : right.start))

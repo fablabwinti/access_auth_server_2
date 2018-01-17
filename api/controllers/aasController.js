@@ -182,7 +182,7 @@ exports.rights = function(req, res) {
         console.log('connected as id ' + connection.threadId);
 
         var rights = Array();
-        connection.query('SELECT r.rid, t.name tag, m.name machine, r.start, r.end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
+        connection.query('SELECT r.rid, t.name tag, m.name machine, date_format(r.start, \'%d.%m.%Y %h:%i:%s\') start, date_format(r.end, \'%d.%m.%Y %h:%i:%s\') end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
         //connection.query('SELECT * FROM rights', function(error, rows, fields) {
             if (error) {
                 res.send(error);

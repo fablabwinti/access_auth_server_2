@@ -13,19 +13,28 @@ block content
             select#machines.form-control(name='mid')
                 option(value=0) bitte auswählen
                 each machine in machines
-                    option(value=machine.mid + (undefined===log ? '' : selected=(machine.mid==log.mid))) #{machine.name}
+                    -if (undefined===log)
+                        option(value=machine.mid) #{machine.name}
+                    -else
+                        option(value=machine.mid selected=(machine.mid==log.mid)) #{machine.name}
         div.form-group
             label(for='tag') Tag:
             select#tag.form-control(name='tid')
                 option(value=0) bitte auswählen
                 each tag in tags
-                    option(value=tag.tid + (undefined===log ? '' : selected=(tag.tid==log.tid))) #{tag.name}
+                    -if (undefined===log)
+                        option(value=tag.tid) #{tag.name}
+                    -else
+                        option(value=tag.tid selected=(tag.tid==log.tid)) #{tag.name}
         div.form-group
             label(for='events') Events:
             select#event.form-control(name='eid')
                 option(value=0) bitte auswählen
                 each event in events
-                    option(value=event.eid + (undefined===log ? '' : selected=(event.eid==log.eid))) #{event.name}
+                    -if (undefined===log)
+                        option(value=event.eid) #{event.name}
+                    -else
+                        option(value=event.eid selected=(event.eid==log.eid)) #{event.name}
         div.form-group
             label(for='remarks') Remarks:
             input#remarks.form-control(type='text', name='remarks' value=(undefined===remarks ? '' : log.remarks))
