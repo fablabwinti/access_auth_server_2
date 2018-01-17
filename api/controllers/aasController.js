@@ -839,7 +839,7 @@ exports.list_all_tags = function(req, res) {
             offset = ' OFFSET ' + req.query.offset;
         }
         
-        connection.query('SELECT * FROM tags' + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT *, name AS owner FROM tags' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
