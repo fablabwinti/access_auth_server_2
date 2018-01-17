@@ -7,7 +7,7 @@ block content
     form(method='POST' action='/logs')
         div.form-group
             label(for='machines') Machines:
-            select#machines.form-control(name='mid')
+            select#machines.form-control(name='mid' autofocus)
                 option(value=0) bitte auswählen
                 each machine in machines
                     option(value=machine.mid) #{machine.name}

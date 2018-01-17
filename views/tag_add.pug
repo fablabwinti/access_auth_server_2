@@ -7,7 +7,7 @@ block content
     form(method='POST' action='/tags')
         div.form-group
             label(for='name') Name:
-            input#name.form-control(type='text', name='name' value=(undefined===tag ? '' : tag.name))
+            input#name.form-control(type='text', name='name' autofocus value=(undefined===tag ? '' : tag.name))
         div.form-group
             label(for='uid') Card UID:
             input#uid.form-control(type='text', name='uid' value=(undefined===tag ? '' : tag.uid))

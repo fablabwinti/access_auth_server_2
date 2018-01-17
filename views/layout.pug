@@ -4,10 +4,12 @@ html
         title #{title}
         style body {font-family: "Trebuchet MS",Arial,Helvetica,sans-serif;}
         style .navi {background-color:#0073a4; color:#ffffff; padding:20px;}
+        style img.logo{height: 50px; margin-bottom: -3px;}
         style .navi a{color:#ffffff; font-size:22px; text-decoration:none; margin: 0; padding:20px;}
         style .content {padding:40px;}
         style label {display:inline-block; width: 80px; margin-bottom:10px;}
         style table {border:1px solid black; border-spacing:0; font-size:16px; margin-bottom:10px;}
+        style table a{margin-right:10px;}
         style tr:nth-child(2n) {background-color: #f2f2f2;}
         style td, th {border:1px solid #ddd; text-align:left; padding:8px;}
         style th {padding-top:11px; padding-bottom:11px; background-color:#0073a4; color:white;}
@@ -16,8 +18,10 @@ html
     body
         header(class='navi')
             block header
-                    each menu in menues
-                        a(id=menu.id href=menu.link)= menu.text
+                a(id='home' href='/')
+                    img(class='logo' src='img/logo.png')
+                each menu in menues
+                    a(id=menu.id href=menu.link)= menu.text
 
         section(class='content')
             block content

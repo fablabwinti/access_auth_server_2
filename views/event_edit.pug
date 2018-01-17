@@ -7,6 +7,6 @@ block content
     form(method='POST' action='/event_edit' + (undefined===event ? '' : '?eid=' + event.eid))
         div.form-group
             label(for='name') Name:
-            input#name.form-control(type='text', name='name' value=(undefined===event ? '' : event.name))
+            input#name.form-control(type='text', name='name' autofocus value=(undefined===event ? '' : event.name))
         div.form-group
             button.btn.btn-primary(type='submit') Submit

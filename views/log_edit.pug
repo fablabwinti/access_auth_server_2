@@ -7,7 +7,7 @@ block content
     form(method='POST' action='/log_edit' + (undefined===log ? '' : '?lid=' + log.lid))
         div.form-group
             label(for='timestamp') Timestamp:
-            input#timestamp.form-control(type='text', name='timestamp' value=(undefined===log ? '' : log.timestamp))
+            input#timestamp.form-control(type='text', name='timestamp' autofocus value=(undefined===log ? '' : log.timestamp))
         div.form-group
             label(for='machines') Machine:
             select#machines.form-control(name='mid')

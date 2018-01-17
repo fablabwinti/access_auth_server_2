@@ -12,6 +12,7 @@ block content
             th Tag
             th Event
             th Remarks
+            th Invoice
             th
                 a(href='/log_edit')= 'Add'
             each log in logs
@@ -22,5 +23,7 @@ block content
                     td #{log.tag}
                     td #{log.event}
                     td #{log.remarks}
+                    td #{log.iid}
                     td
                         a(href='/log_edit?lid=' + log.lid)= 'Edit'
+                        a(href='/logs?task=del&lid=' + log.lid)= 'Delete'

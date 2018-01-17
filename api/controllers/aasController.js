@@ -10,7 +10,8 @@ var pool = mysql.createPool({
 });
 
 var menues = Array(
-    {id: 'home', text: 'Invoices', link: '/'},
+    {id: 'home', text: 'Create Invoice', link: '/'},
+    {id: 'invoices', text: 'Invoices', link: '/invoices'},    
     {id: 'logs', text: 'Logs', link: '/logs'},    
     {id: 'machines', text: 'Machines', link: '/machines'},
     {id: 'tags', text: 'Tags', link: '/tags'},
@@ -43,7 +44,7 @@ exports.tag_summary = function(req, res) {
                 } else {
                     if (rows[0]) {
                         tag = rows[0];
-                        connection.query('SELECT date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN events e ON l.eid=e.eid WHERE tid=? ORDER BY timestamp', tag.tid, function(error, rows, fields) {
+                        connection.query('SELECT date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN events e ON l.eid=e.eid WHERE tid=? AND ISNULL(iid) ORDER BY l.timestamp', tag.tid, function(error, rows, fields) {
                             if (error) {
                                 res.send(error);
                             } else {
@@ -88,24 +89,46 @@ exports.tags = function(req, res) {
 };
 
 exports.logs = function(req, res) {
-    pool.getConnection(function(err,connection){
-        if (err) {
-            res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
-            return;
-        }  
-        console.log('connected as id ' + connection.threadId);
+    if (req.query.task == 'del'){
+        if (req.query.lid){
+            // delete the record with lid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                console.log('connected as id ' + connection.threadId);
 
-        var logs = Array();
-        connection.query('SELECT l.lid, l.timestamp, m.name machine, t.name tag, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid', function(error, rows, fields) {
-            if (error) {
-                res.send(error);
-            } else {
-                logs = rows;
-                res.render('logs', {title: 'FabLab Access Auth', message: 'Logs', menues: menues, logs: logs});
-            }            
+                connection.query('DELETE FROM logs WHERE lid=' + req.query.lid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/logs');
+                    }            
+                });
+                connection.release();
+            });
+        }
+    } else {
+        pool.getConnection(function(err,connection){
+            if (err) {
+                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                return;
+            }  
+            console.log('connected as id ' + connection.threadId);
+
+            var logs = Array();
+            connection.query('SELECT l.lid, date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, t.name tag, e.name event, l.remarks, l.iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid', function(error, rows, fields) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    logs = rows;
+                    res.render('logs', {title: 'FabLab Access Auth', message: 'Logs', menues: menues, logs: logs});
+                }            
+            });
+            connection.release();
         });
-        connection.release();
-    });
+    }
 };
 
 exports.machines = function(req, res) {
@@ -556,7 +579,7 @@ exports.right_edit = function(req, res) {
                     if (error) {
                         res.send(error);
                     } else {
-                        res.redirect('/events');
+                        res.redirect('/rights');
                     }            
                 });
                 connection.release();
@@ -605,7 +628,7 @@ exports.right_edit = function(req, res) {
                     if (error) {
                         res.send(error);
                     } else {
-                        res.redirect('/events');
+                        res.redirect('/rights');
                     }            
                 });
             });

@@ -55,6 +55,7 @@ CREATE TABLE `logs` (
   `tid` int(11) DEFAULT NULL,
   `eid` int(11) NOT NULL,
   `remarks` text,
+  `invoiced` bit DEFAULT 0,
   PRIMARY KEY (`lid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
