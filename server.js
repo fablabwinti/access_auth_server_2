@@ -4,6 +4,12 @@ var port = process.env.PORT || 3000;
 var mysql = require('mysql');
 //var model = require('./api/models/aasModel');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var helmet = require('helmet');
+
+
+// init helmet (header security)
+app.use(helmet());
 
 // init bodyParser
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -31,6 +37,9 @@ app.use(function (req, res, next) {
 
 // serve static content
 app.use(express.static('public'));
+
+// prepare session
+app.use(session({secret: "FLW@tpw", resave: true, saveUninitialized: true}));
 
 // set view engine and views folder
 app.set('view engine', 'pug');

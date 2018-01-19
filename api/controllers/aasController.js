@@ -6,10 +6,17 @@ var pool = mysql.createPool({
     user     : 'flauth',
     password : 'FabLab',
     database : 'flauth',
-    debug    :  false
+    debug    :  false,
+    checkExpirationInterval: 900000, // = 15 Min. How frequently expired sessions will be cleared; milliseconds:
+    expiration: 1800000, // = 30 Min. The maximum age of a valid session; milliseconds:
+    createDatabaseTable: true // Whether or not to create the sessions database table, if one does not already exist:
 });
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
+var sessionStore = new MySQLStore({}, pool);
+var salt = "FLW@tpw";
 
-var menues = Array(
+var menues_admin = Array(
     {id: 'home', text: 'Create Invoice', link: '/'},
     {id: 'invoices', text: 'Invoices', link: '/invoices'},    
     {id: 'logs', text: 'Logs', link: '/logs'},    
@@ -20,6 +27,22 @@ var menues = Array(
     {id: 7, text: 'Logout', link: '/logout'}    
 );
 
+var menues_lm = Array(
+    {id: 'home', text: 'Create Invoice', link: '/'},
+    {id: 'tags', text: 'Tags', link: '/tags'},
+    {id: 'rights', text: 'Rights', link: '/rights'},    
+    {id: 7, text: 'Logout', link: '/logout'}    
+);
+var menues = Array();
+
+
+function setMenues(req, res){
+    if (req.session.role == 1){
+        return menues_admin;
+    } else {
+        return menues_lm;
+    }
+}
 
 // Frontend Forms ///////////
 exports.frontend = function(req, res) {
@@ -28,6 +51,13 @@ exports.frontend = function(req, res) {
 };
 
 exports.tag_summary = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
     if (req.body.uid) {
         pool.getConnection(function(err,connection){
             if (err) {
@@ -68,6 +98,13 @@ exports.tag_summary = function(req, res) {
 };
 
 exports.tags = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
     pool.getConnection(function(err,connection){
         if (err) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -89,6 +126,18 @@ exports.tags = function(req, res) {
 };
 
 exports.logs = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
     if (req.query.task == 'del'){
         if (req.query.lid){
             // delete the record with lid
@@ -132,6 +181,18 @@ exports.logs = function(req, res) {
 };
 
 exports.machines = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
     pool.getConnection(function(err,connection){
         if (err) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -153,6 +214,18 @@ exports.machines = function(req, res) {
 };
 
 exports.events = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
     pool.getConnection(function(err,connection){
         if (err) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -174,6 +247,13 @@ exports.events = function(req, res) {
 };
 
 exports.rights = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
     pool.getConnection(function(err,connection){
         if (err) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -196,6 +276,13 @@ exports.rights = function(req, res) {
 };
 
 exports.tag_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
     if (req.query.tid){
         if (!req.body.uid){
             // not post data -> load tag with given tid
@@ -266,6 +353,18 @@ exports.tag_edit = function(req, res) {
 };
 
 exports.log_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
     if (req.query.lid){
         if (!req.body.timestamp){
             // not post data -> load log with given lid
@@ -393,6 +492,18 @@ exports.log_edit = function(req, res) {
 };
 
 exports.machine_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
     if (req.query.mid){
         if (!req.body.name){
             // not post data -> load machine with given mid
@@ -461,6 +572,18 @@ exports.machine_edit = function(req, res) {
 };
 
 exports.event_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
     if (req.query.eid){
         if (!req.body.name){
             // not post data -> load event with given eid
@@ -529,6 +652,13 @@ exports.event_edit = function(req, res) {
 };
 
 exports.right_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
     if (req.query.rid){
         if (!req.body.tid){
             // not post data -> load right with given rid
@@ -637,15 +767,63 @@ exports.right_edit = function(req, res) {
 };
 
 exports.login = function(req, res) {
-    res.render('error', { title: 'FabLab Access Auth', message: 'Authentication not implemented yet!', menues: menues });
+    if (!req.body.username){
+        // get empty form
+        res.render('login', { title: 'FabLab Access Auth', message: 'Login', menues: menues });
+    } else {
+        // check form data
+        if (req.body.password){
+            pool.getConnection(function(err,connection){
+                if (err) {
+                  res.json({"code" : 100, "status" : "Error in connection database"});
+                  return;
+                }  
+                console.log('connected as id ' + connection.threadId);
+
+                connection.query('SELECT uid, role FROM users WHERE username="' + req.body.username + '" AND password_hash=MD5("' + salt + req.body.password + '")', function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        if (rows.length > 0){
+                            var uid = rows[0].uid;
+                            var role = rows[0].role;
+                            if (role == 1 || role == 2){
+                                req.session.uid = uid;
+                                req.session.role = role;
+                                res.redirect('/tag_summary');
+                            } else {
+                                req.session.uid = null;
+                                req.session.role = null;
+                                res.redirect('/login');
+                            }
+                        } else {
+                            req.session.uid = null;
+                            req.session.role = null;
+                            res.redirect('/login');
+                        }
+                    }            
+                });
+
+                connection.on('error', function(err) {      
+                    res.json({"code" : 100, "status" : "Error in connection database"});
+                    return;    
+                });
+            });
+        }
+    }
 };
 
 exports.logout = function(req, res) {
-    res.render('error', { title: 'FabLab Access Auth', message: 'Authentication not implemented yet!', menues: menues });
+    //res.render('error', { title: 'FabLab Access Auth', message: 'Authentication not implemented yet!', menues: menues });
+    req.session.uid = null;
+    req.session.role = null;
+    menues = Array();
+    res.redirect('/');
 };
 
 
-// RestAPI //////////////////
+// RestAPI ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // MACHINES
 exports.list_all_machines = function(req, res) {
@@ -1126,6 +1304,18 @@ exports.create_a_log = function(req, res) {
           return;
         }  
         console.log('connected as id ' + connection.threadId);
+        
+        if (req.body.eid == 3){
+            //event is tag login
+            //-> check if previous event for same machine/tag was tag logout
+            //else insert tag logout before new login
+        }
+        
+        if (req.body.eid == 4){
+            //event is tag logout
+            //-> check if previous event for same machine/tag was tag login
+            //else ignore event
+        }
         
         //res.json(req.body);
         connection.query('INSERT INTO logs SET ?', req.body, function(error, results, fields) {

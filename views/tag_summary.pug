@@ -8,6 +8,8 @@ block content
         div.form-group
             label(for='uid') Card ID:
             input#tid.form-control(type='text', name='uid' autofocus onFocus='this.setSelectionRange(0, this.value.length)' value=(undefined===tag ? '' : tag.uid))
+            button.btn.btn-primary(class='behind' type='submit') Search
+
         div.form-group
             label(for='name') Name:
             input#name.form-control(type='text', name='name' value=(undefined===tag ? '' : tag.name))
@@ -24,5 +26,3 @@ block content
                         td #{log.event}
                         td #{log.remarks}
 
-        div.form-group
-            button.btn.btn-primary(type='submit') Submit
