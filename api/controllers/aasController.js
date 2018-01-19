@@ -24,6 +24,7 @@ var menues_admin = Array(
     {id: 'tags', text: 'Tags', link: '/tags'},
     {id: 'events', text: 'Events', link: '/events'},    
     {id: 'rights', text: 'Rights', link: '/rights'},    
+    {id: 'users', text: 'Users', link: '/users'},    
     {id: 7, text: 'Logout', link: '/logout'}    
 );
 
@@ -31,6 +32,7 @@ var menues_lm = Array(
     {id: 'home', text: 'Create Invoice', link: '/'},
     {id: 'tags', text: 'Tags', link: '/tags'},
     {id: 'rights', text: 'Rights', link: '/rights'},    
+    {id: 'user', text: 'User', link: '/user_edit'},    
     {id: 7, text: 'Logout', link: '/logout'}    
 );
 var menues = Array();
@@ -269,6 +271,39 @@ exports.rights = function(req, res) {
             } else {
                 rights = rows;
                 res.render('rights', {title: 'FabLab Access Auth', message: 'Rights', menues: menues, rights: rights});
+            }            
+        });
+        connection.release();
+    });
+};
+
+exports.users = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
+    pool.getConnection(function(err,connection){
+        if (err) {
+            res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+            return;
+        }  
+        //console.log('connected as id ' + connection.threadId);
+
+        var users = Array();
+        connection.query('SELECT uid, username, name, role FROM users', function(error, rows, fields) {
+            if (error) {
+                res.send(error);
+            } else {
+                users = rows;
+                res.render('users', {title: 'FabLab Access Auth', message: 'Users', menues: menues, users: users});
             }            
         });
         connection.release();
@@ -759,6 +794,85 @@ exports.right_edit = function(req, res) {
                         res.send(error);
                     } else {
                         res.redirect('/rights');
+                    }            
+                });
+            });
+        }
+    }
+};
+
+exports.user_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //non admins can only edit own user
+            req.query.uid = req.session.uid;
+        }
+        menues = setMenues(req);
+    }
+
+    if (req.query.uid){
+        if (!req.body.username){
+            // not post data -> load user with given id
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                var user;
+                connection.query('SELECT uid, username, name, role FROM users WHERE uid=?', req.query.uid, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        user = rows[0];
+                        res.render('user_edit', {title: 'FabLab Access Auth', message: 'Edit User', menues: menues, user: user});
+                    }            
+                });
+            });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE users SET username="' + req.body.username + '"' + (req.body.password ? ', password_hash=MD5("' + salt + req.body.password + '")' : '') + ', name="' + req.body.name + '", role=' + req.body.role + ' WHERE uid=' + req.query.uid, function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/users');
+                    }            
+                });
+                connection.release();
+            });
+        }
+    } else {
+        if (!req.body.username){
+            // no eid -> load empfty form to add new event
+            var user;
+            res.render('user_edit', {title: 'FabLab Access Auth', message: 'Add User', menues: menues, user: user});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT users SET username="' + req.body.username + '", password_hash=MD5("' + salt + req.body.password + '"), name="' + req.body.name + '", role=' + req.body.role, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/users');
                     }            
                 });
             });

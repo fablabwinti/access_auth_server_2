@@ -6,6 +6,10 @@ module.exports = function(app) {
     // Frontend Routes
     app.route('/')
     .get(aas.tag_summary);
+    
+    app.route('/tag_summary')
+    .get(aas.tag_summary)
+    .post(aas.tag_summary);
 
     app.route('/tags')
     .get(aas.tags);
@@ -13,6 +17,13 @@ module.exports = function(app) {
     app.route('/tag_edit')
     .get(aas.tag_edit)
     .post(aas.tag_edit);
+    
+    app.route('/rights')
+    .get(aas.rights);
+
+    app.route('/right_edit')
+    .get(aas.right_edit)
+    .post(aas.right_edit);
 
     app.route('/logs')
     .get(aas.logs);
@@ -35,16 +46,12 @@ module.exports = function(app) {
     .get(aas.event_edit)
     .post(aas.event_edit);
     
-    app.route('/rights')
-    .get(aas.rights);
+    app.route('/users')
+    .get(aas.users);
 
-    app.route('/right_edit')
-    .get(aas.right_edit)
-    .post(aas.right_edit);
-    
-    app.route('/tag_summary')
-    .get(aas.tag_summary)
-    .post(aas.tag_summary);
+    app.route('/user_edit')
+    .get(aas.user_edit)
+    .post(aas.user_edit);
 
     app.route('/login')
     .get(aas.login)

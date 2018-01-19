@@ -1,0 +1,22 @@
+//- users.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th UID
+            th Username
+            th Full Name
+            th Role
+            th
+                a(href='/user_edit')= 'Add'
+            each user in users
+                tr
+                    td #{user.uid}
+                    td #{user.username} 
+                    td #{user.name}
+                    td #{user.role}
+                    td
+                        a(href='/user_edit?uid=' + user.uid)= 'Edit'
