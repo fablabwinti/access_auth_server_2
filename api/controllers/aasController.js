@@ -64,7 +64,7 @@ exports.tag_summary = function(req, res) {
                 res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                 return;
             }  
-            console.log('connected as id ' + connection.threadId);
+            //console.log('connected as id ' + connection.threadId);
 
             var tag;
             var logs = Array();
@@ -110,7 +110,7 @@ exports.tags = function(req, res) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
             return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
 
         var tags = Array();
         connection.query('SELECT * FROM tags', function(error, rows, fields) {
@@ -146,7 +146,7 @@ exports.logs = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('DELETE FROM logs WHERE lid=' + req.query.lid, function(error, rows, fields) {
                     if (error) {
@@ -164,10 +164,10 @@ exports.logs = function(req, res) {
                 res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                 return;
             }  
-            console.log('connected as id ' + connection.threadId);
+            //console.log('connected as id ' + connection.threadId);
 
             var logs = Array();
-            connection.query('SELECT l.lid, date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, t.name tag, e.name event, l.remarks, l.iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid', function(error, rows, fields) {
+            connection.query('SELECT l.lid, date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, t.name tag, e.name event, l.remarks, l.iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid ORDER BY l.timestamp', function(error, rows, fields) {
                 if (error) {
                     res.send(error);
                 } else {
@@ -198,7 +198,7 @@ exports.machines = function(req, res) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
             return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
 
         var machines = Array();
         connection.query('SELECT * FROM machines', function(error, rows, fields) {
@@ -231,7 +231,7 @@ exports.events = function(req, res) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
             return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
 
         var events = Array();
         connection.query('SELECT * FROM events', function(error, rows, fields) {
@@ -259,7 +259,7 @@ exports.rights = function(req, res) {
             res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
             return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
 
         var rights = Array();
         connection.query('SELECT r.rid, t.name tag, m.name machine, date_format(r.start, \'%d.%m.%Y %h:%i:%s\') start, date_format(r.end, \'%d.%m.%Y %h:%i:%s\') end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
@@ -291,7 +291,7 @@ exports.tag_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var tag;
                 connection.query('SELECT * FROM tags WHERE tid=?', req.query.tid, function(error, rows, fields) {
@@ -311,7 +311,7 @@ exports.tag_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('UPDATE tags SET uid="' + req.body.uid + '", name="' + req.body.name + '" WHERE tid=' + req.query.tid, function(error, rows, fields) {
                     if (error) {
@@ -336,7 +336,7 @@ exports.tag_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('INSERT tags SET uid="' + req.body.uid + '", name="' + req.body.name + '"', function(error, rows, fields) {
                     connection.release();
@@ -373,7 +373,7 @@ exports.log_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var log;
                 var machines = Array();
@@ -417,7 +417,7 @@ exports.log_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('UPDATE logs SET timestamp="' + req.body.timestamp + '", mid=' + req.body.mid + ', tid=' + req.body.tid + ', eid=' + req.body.eid + ', remarks="' + req.body.remarks + '" WHERE lid=' + req.query.lid, function(error, rows, fields) {
                     if (error) {
@@ -438,7 +438,7 @@ exports.log_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var log;
                 var machines = Array();
@@ -475,7 +475,7 @@ exports.log_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('INSERT logs SET timestamp="' + req.body.timestamp + '", mid=' + req.body.mid + ', tid=' + req.body.tid + ', eid=' + req.body.eid + ', remarks="' + req.body.remarks + '"', function(error, rows, fields) {
                     connection.release();
@@ -512,7 +512,7 @@ exports.machine_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var machine;
                 connection.query('SELECT * FROM machines WHERE mid=?', req.query.mid, function(error, rows, fields) {
@@ -532,7 +532,7 @@ exports.machine_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('UPDATE machines SET name="' + req.body.name + '", config="' + req.body.config + '" WHERE mid=' + req.query.mid, function(error, rows, fields) {
                     if (error) {
@@ -556,7 +556,7 @@ exports.machine_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('INSERT machines SET name="' + req.body.name + '", config="' + req.body.config + '"', function(error, rows, fields) {
                     connection.release();
@@ -592,7 +592,7 @@ exports.event_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var event;
                 connection.query('SELECT * FROM events WHERE eid=?', req.query.eid, function(error, rows, fields) {
@@ -612,7 +612,7 @@ exports.event_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('UPDATE events SET name="' + req.body.name + '" WHERE eid=' + req.query.eid, function(error, rows, fields) {
                     if (error) {
@@ -636,7 +636,7 @@ exports.event_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('INSERT events SET name="' + req.body.name + '"', function(error, rows, fields) {
                     connection.release();
@@ -667,7 +667,7 @@ exports.right_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var right;
                 var tags = Array();
@@ -703,7 +703,7 @@ exports.right_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('UPDATE rights SET tid=' + req.body.tid + ', mid=' + req.body.mid + ', start="' + req.body.start + '", end="' + req.body.end + '" WHERE rid=' + req.query.rid, function(error, rows, fields) {
                     if (error) {
@@ -723,7 +723,7 @@ exports.right_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 var right;
                 var tags = Array();
@@ -751,7 +751,7 @@ exports.right_edit = function(req, res) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('INSERT rights SET tid=' + req.body.tid + ', mid=' + req.body.mid + ', start="' + req.body.start + '", end="' + req.body.end + '"', function(error, rows, fields) {
                     connection.release();
@@ -778,7 +778,7 @@ exports.login = function(req, res) {
                   res.json({"code" : 100, "status" : "Error in connection database"});
                   return;
                 }  
-                console.log('connected as id ' + connection.threadId);
+                //console.log('connected as id ' + connection.threadId);
 
                 connection.query('SELECT uid, role FROM users WHERE username="' + req.body.username + '" AND password_hash=MD5("' + salt + req.body.password + '")', function(error, rows, fields) {
                     connection.release();
@@ -832,7 +832,7 @@ exports.list_all_machines = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -865,7 +865,7 @@ exports.list_all_machine_tags = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -898,7 +898,7 @@ exports.list_all_machine_logs = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -931,7 +931,7 @@ exports.create_a_machine = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         //res.json(req.body);
         connection.query('INSERT INTO machines SET ?', req.body, function(error, results, fields) {
@@ -954,7 +954,7 @@ exports.read_a_machine = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         connection.query('SELECT * FROM machines WHERE mid=?', req.params.mid, function(error, rows, fields) {
             connection.release();
@@ -978,7 +978,7 @@ exports.update_a_machine = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         //res.json(req.body);
         connection.query('UPDATE machines SET ? WHERE mid=?', req.body, req.params.mid, function(error, results, fields) {
@@ -1006,7 +1006,7 @@ exports.list_all_tags = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -1039,7 +1039,7 @@ exports.create_a_tag = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         //res.json(req.body);
         connection.query('INSERT INTO tags SET ?', req.body, function(error, results, fields) {
@@ -1062,7 +1062,7 @@ exports.read_a_tag = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         connection.query('SELECT *, name AS owner FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
             connection.release();
@@ -1094,7 +1094,7 @@ exports.list_all_rights = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -1127,7 +1127,7 @@ exports.create_a_right = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         //res.json(req.body);
         connection.query('INSERT INTO rights SET ?', req.body, function(error, results, fields) {
@@ -1150,7 +1150,7 @@ exports.read_a_right = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         connection.query('SELECT rid, tid, mid, UNIX_TIMESTAMP(start) start, UNIX_TIMESTAMP(end) end FROM rights WHERE rid=' + req.params.rid, function(error, rows, fields) {
             connection.release();
@@ -1182,7 +1182,7 @@ exports.list_all_events = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -1215,7 +1215,7 @@ exports.create_a_event = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         //res.json(req.body);
         connection.query('INSERT INTO events SET ?', req.body, function(error, results, fields) {
@@ -1238,7 +1238,7 @@ exports.read_a_event = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         connection.query('SELECT * FROM events WHERE eid=' + req.params.eid, function(error, rows, fields) {
             connection.release();
@@ -1270,7 +1270,7 @@ exports.list_all_logs = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         var limit = '';
         if (req.query.limit) {
@@ -1303,7 +1303,7 @@ exports.create_a_log = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         if (req.body.eid == 3){
             //event is tag login
@@ -1338,7 +1338,7 @@ exports.read_a_log = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks FROM logs WHERE lid=' + req.params.lid, function(error, rows, fields) {
             connection.release();
@@ -1370,7 +1370,7 @@ exports.get_timestamp = function(req, res) {
           res.json({"code" : 100, "status" : "Error in connection database"});
           return;
         }  
-        console.log('connected as id ' + connection.threadId);
+        //console.log('connected as id ' + connection.threadId);
         
         connection.query('SELECT UNIX_TIMESTAMP() timestamp', function(error, rows, fields) {
             connection.release();

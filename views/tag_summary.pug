@@ -13,6 +13,9 @@ block content
         div.form-group
             label(for='name') Name:
             input#name.form-control(type='text', name='name' value=(undefined===tag ? '' : tag.name))
+
+
+    form(method='POST' action='/tag_summary?task=invoice')
         div.form-group
             table
                 th Timestamp
@@ -25,4 +28,6 @@ block content
                         td #{log.machine} 
                         td #{log.event}
                         td #{log.remarks}
+                        
+            button.btn.btn-primary(type='submit') Invoice
 
