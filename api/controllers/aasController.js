@@ -1023,7 +1023,7 @@ exports.list_all_machine_logs = function(req, res) {
             offset = ' OFFSET ' + req.query.offset;
         }
         
-        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks FROM logs WHERE mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs WHERE mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1131,7 +1131,7 @@ exports.list_all_tags = function(req, res) {
             offset = ' OFFSET ' + req.query.offset;
         }
         
-        connection.query('SELECT *, name AS owner FROM tags' + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT * FROM tags' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1178,7 +1178,7 @@ exports.read_a_tag = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT *, name AS owner FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
+        connection.query('SELECT * FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1395,7 +1395,7 @@ exports.list_all_logs = function(req, res) {
             offset = ' OFFSET ' + req.query.offset;
         }
         
-        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks FROM logs' + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs' + limit + offset, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1454,7 +1454,7 @@ exports.read_a_log = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks FROM logs WHERE lid=' + req.params.lid, function(error, rows, fields) {
+        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs WHERE lid=' + req.params.lid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);

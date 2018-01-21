@@ -37,7 +37,7 @@ CREATE TABLE `events` (
 
 LOCK TABLES `events` WRITE;
 /*!40000 ALTER TABLE `events` DISABLE KEYS */;
-INSERT INTO `events` VALUES (1,'Machine started'),(2,'Machine start error'),(3,'Machine shutdown'),(4,'Tag login'),(5,'Tag logout'),(6,'Manual correction');
+INSERT INTO `events` VALUES (1,'Machine started'),(2,'Machine start error'),(3,'Machine shutdown'),(4,'Tag login'),(5,'Tag logout'),(6,'Tag error'),(7,'Manual correction');
 /*!40000 ALTER TABLE `events` ENABLE KEYS */;
 UNLOCK TABLES;
 
