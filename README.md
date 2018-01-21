@@ -8,8 +8,10 @@ You need to install MySQSL and NodeJS V6 to run this server.
 - Install it
 - Open MySQL Workbench
 - Import the **sql/flauth.sql** (this creates a new schema/database **flauth**)
-- Create a new user **flauth** with password **FabLab** and all privileges for schema **flauth**
+- Create a new user **flauth** with any password and all privileges for schema **flauth**
 - Get Node JS V6 from https://nodejs.org/en/download/
 - Install it
 - Git clone the **access_auth_server** repository into a folder (or download zip and unpack)
+- Open **api/controllers/aasController.js* and enter your password for the DB (on line 7)
+- Save the file
 - Run **node server.js**
