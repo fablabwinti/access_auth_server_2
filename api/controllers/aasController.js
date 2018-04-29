@@ -1,15 +1,16 @@
 'use strict';
+const config = require('../../config');
 var mysql = require('mysql');
 var pool = mysql.createPool({
     connectionLimit : 100, //important
-    host     : 'localhost',
-    user     : 'flauth',
-    password : 'FabLab',
-    database : 'flauth',
-    debug    :  false,
+    host     : config.dbHost,   //'localhost',
+    database : config.dbName,   //'flauth',
+    user     : config.dbUser,   //'flauth',
+    password : config.dbPass,   //'FabLab',
+    debug    : false,
     checkExpirationInterval: 900000, // = 15 Min. How frequently expired sessions will be cleared; milliseconds:
-    expiration: 1800000, // = 30 Min. The maximum age of a valid session; milliseconds:
-    createDatabaseTable: true // Whether or not to create the sessions database table, if one does not already exist:
+    expiration: 1800000,             // = 30 Min. The maximum age of a valid session; milliseconds:
+    createDatabaseTable: true        // Whether or not to create the sessions database table, if one does not already exist:
 });
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
@@ -150,7 +151,7 @@ exports.logs = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('DELETE FROM logs WHERE lid=' + req.query.lid, function(error, rows, fields) {
+                connection.query('DELETE FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -262,9 +263,8 @@ exports.rights = function(req, res) {
             return;
         }  
         //console.log('connected as id ' + connection.threadId);
-
         var rights = Array();
-        connection.query('SELECT r.rid, t.name tag, m.name machine, date_format(r.start, \'%d.%m.%Y %h:%i:%s\') start, date_format(r.end, \'%d.%m.%Y %h:%i:%s\') end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
+        connection.query('SELECT r.rid, t.name tag, m.name machine, date_format(r.start, \'%d.%m.%Y\') start, date_format(r.end, \'%d.%m.%Y\') end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
         //connection.query('SELECT * FROM rights', function(error, rows, fields) {
             if (error) {
                 res.send(error);
@@ -348,7 +348,7 @@ exports.tag_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE tags SET uid="' + req.body.uid + '", name="' + req.body.name + '" WHERE tid=' + req.query.tid, function(error, rows, fields) {
+                connection.query('UPDATE tags SET uid=?, name=? WHERE tid=?', [req.body.uid, req.body.name, req.query.tid], function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -373,7 +373,7 @@ exports.tag_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT tags SET uid="' + req.body.uid + '", name="' + req.body.name + '"', function(error, rows, fields) {
+                connection.query('INSERT tags SET uid=?, name=?', [req.body.uid, req.body.name], function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -454,7 +454,7 @@ exports.log_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE logs SET timestamp="' + req.body.timestamp + '", mid=' + req.body.mid + ', tid=' + req.body.tid + ', eid=' + req.body.eid + ', remarks="' + req.body.remarks + '" WHERE lid=' + req.query.lid, function(error, rows, fields) {
+                connection.query('UPDATE logs SET timestamp=?, mid=?, tid=?, eid=?, remarks=? WHERE lid=?', [req.body.timestamp, req.body.mid, req.body.tid, req.body.eid, req.body.remarks, req.query.lid], function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -512,7 +512,7 @@ exports.log_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT logs SET timestamp="' + req.body.timestamp + '", mid=' + req.body.mid + ', tid=' + req.body.tid + ', eid=' + req.body.eid + ', remarks="' + req.body.remarks + '"', function(error, rows, fields) {
+                connection.query('INSERT logs SET timestamp=?, mid=?, tid=?, eid=?, remarks=?', [req.body.timestamp, req.body.mid, req.body.tid, req.body.eid, req.body.remarks], function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -569,7 +569,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE machines SET name="' + req.body.name + '", config="' + req.body.config + '" WHERE mid=' + req.query.mid, function(error, rows, fields) {
+                connection.query('UPDATE machines SET name=?, config=? WHERE mid=?', [req.body.name, req.body.config, req.query.mid], function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -593,7 +593,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT machines SET name="' + req.body.name + '", config="' + req.body.config + '"', function(error, rows, fields) {
+                connection.query('INSERT machines SET name=?, config=?', [req.body.name, req.body.config], function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -649,7 +649,7 @@ exports.event_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE events SET name="' + req.body.name + '" WHERE eid=' + req.query.eid, function(error, rows, fields) {
+                connection.query('UPDATE events SET name=? WHERE eid=?', [req.body.name, req.query.eid], function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -673,7 +673,7 @@ exports.event_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT events SET name="' + req.body.name + '"', function(error, rows, fields) {
+                connection.query('INSERT events SET name=?', req.body.name, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -703,11 +703,10 @@ exports.right_edit = function(req, res) {
                     return;
                 }  
                 //console.log('connected as id ' + connection.threadId);
-
                 var right;
                 var tags = Array();
                 var machines = Array();
-                connection.query('SELECT * FROM rights WHERE rid=?', req.query.rid, function(error, rows, fields) {
+                connection.query('SELECT rid, tid, mid, date_format(start, \'%Y-%m-%d\') start, date_format(end, \'%Y-%m.%d\') end FROM rights WHERE rid=?', req.query.rid, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -740,7 +739,7 @@ exports.right_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE rights SET tid=' + req.body.tid + ', mid=' + req.body.mid + ', start="' + req.body.start + '", end="' + req.body.end + '" WHERE rid=' + req.query.rid, function(error, rows, fields) {
+                connection.query('UPDATE rights SET tid=?, mid=?, start=?, end=? WHERE rid=?', [req.body.tid, req.body.mid, req.body.start, req.body.end, req.query.rid], function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -788,7 +787,7 @@ exports.right_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT rights SET tid=' + req.body.tid + ', mid=' + req.body.mid + ', start="' + req.body.start + '", end="' + req.body.end + '"', function(error, rows, fields) {
+                connection.query('INSERT rights SET tid=?, mid=?, start=?, end=?', [req.body.tid, req.body.mid, req.body.start, req.body.end], function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -843,7 +842,7 @@ exports.user_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE users SET username="' + req.body.username + '"' + (req.body.password ? ', password_hash=MD5("' + salt + req.body.password + '")' : '') + ', name="' + req.body.name + '", role=' + req.body.role + ' WHERE uid=' + req.query.uid, function(error, rows, fields) {
+                connection.query('UPDATE users SET username=?' + (req.body.password ? ', password_hash=MD5("' + salt + mysql.escape(req.body.password) + '")' : '') + ', name=?, role=? WHERE uid=?', [req.body.username, req.body.name, req.body.role, req.query.uid], function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -867,7 +866,7 @@ exports.user_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT users SET username="' + req.body.username + '", password_hash=MD5("' + salt + req.body.password + '"), name="' + req.body.name + '", role=' + req.body.role, function(error, rows, fields) {
+                connection.query('INSERT users SET username=?, password_hash=MD5("' + salt + mysql.escape(req.body.password) + '"), name=?, role=?', [req.body.username, req.body.name, req.body.role], function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -894,7 +893,7 @@ exports.login = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('SELECT uid, role FROM users WHERE username="' + req.body.username + '" AND password_hash=MD5("' + salt + req.body.password + '")', function(error, rows, fields) {
+                connection.query('SELECT uid, role FROM users WHERE username=? AND password_hash=MD5("' + salt + mysql(req.body.password) + '")', req.body.username, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -950,11 +949,11 @@ exports.list_all_machines = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
         connection.query('SELECT * FROM machines' + limit + offset, function(error, rows, fields) {
@@ -983,14 +982,14 @@ exports.list_all_machine_tags = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
-        connection.query('SELECT t.*, UNIX_TIMESTAMP(r.start) start, UNIX_TIMESTAMP(r.end) end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE r.end>=now() AND r.mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT t.*, UNIX_TIMESTAMP(r.start) start, UNIX_TIMESTAMP(r.end) end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE r.end>=now() AND r.mid=? ' + limit + offset,  req.params.mid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1016,14 +1015,14 @@ exports.list_all_machine_logs = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
-        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs WHERE mid=' + req.params.mid + limit + offset, function(error, rows, fields) {
+        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs WHERE mid=?' + limit + offset, req.params.mid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1095,7 +1094,7 @@ exports.update_a_machine = function(req, res) {
         //console.log('connected as id ' + connection.threadId);
         
         //res.json(req.body);
-        connection.query('UPDATE machines SET ? WHERE mid=?', req.body, req.params.mid, function(error, results, fields) {
+        connection.query('UPDATE machines SET ? WHERE mid=?', [req.body, req.params.mid], function(error, results, fields) {
             connection.release();
             if (error) throw error;
             res.json(results);
@@ -1124,11 +1123,11 @@ exports.list_all_tags = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
         connection.query('SELECT * FROM tags' + limit + offset, function(error, rows, fields) {
@@ -1178,7 +1177,7 @@ exports.read_a_tag = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM tags WHERE tid=' + req.params.tid, function(error, rows, fields) {
+        connection.query('SELECT * FROM tags WHERE tid=?', req.params.tid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1212,11 +1211,11 @@ exports.list_all_rights = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
         connection.query('SELECT rid, tid, mid, UNIX_TIMESTAMP(start) start, UNIX_TIMESTAMP(end) end FROM rights' + limit + offset, function(error, rows, fields) {
@@ -1266,7 +1265,7 @@ exports.read_a_right = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT rid, tid, mid, UNIX_TIMESTAMP(start) start, UNIX_TIMESTAMP(end) end FROM rights WHERE rid=' + req.params.rid, function(error, rows, fields) {
+        connection.query('SELECT rid, tid, mid, UNIX_TIMESTAMP(start) start, UNIX_TIMESTAMP(end) end FROM rights WHERE rid=?', req.params.rid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1300,11 +1299,11 @@ exports.list_all_events = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
         connection.query('SELECT * FROM events' + limit + offset, function(error, rows, fields) {
@@ -1354,7 +1353,7 @@ exports.read_a_event = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT * FROM events WHERE eid=' + req.params.eid, function(error, rows, fields) {
+        connection.query('SELECT * FROM events WHERE eid=?', req.params.eid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);
@@ -1388,11 +1387,11 @@ exports.list_all_logs = function(req, res) {
         
         var limit = '';
         if (req.query.limit) {
-            limit = ' LIMIT ' + req.query.limit;
+            limit = ' LIMIT ' + mysql.escape(req.query.limit);
         }        
         var offset = '';
         if (req.query.offset) {
-            offset = ' OFFSET ' + req.query.offset;
+            offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
         
         connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs' + limit + offset, function(error, rows, fields) {
@@ -1419,16 +1418,33 @@ exports.create_a_log = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        if (req.body.eid == 3){
-            //event is tag login
+        if (req.body.eid == 3){     //event is tag login
             //-> check if previous event for same machine/tag was tag logout
-            //else insert tag logout before new login
+            connection.query('SELECT * FROM logs WHERE mid=? AND tid=? ORDER BY lid DESC LIMIT 1', [req.body.mid, req.body.tid], function(error, results, fields) {
+                if (error) throw error;
+                if (results[0].eid == 4){ //previous was logout?
+                    //everthing is fine
+                } else {
+                    //insert tag logout before new login
+                    connection.query('INSERT INTO logs SET timestamp=?, mid=?, tid=?, eid=4, remarks=?, iid=?', [req.body.timestamp-1, req.body.mid, req.body.tid, 'Auto logout before new login!', req.body.iid], function(error, results, fields) {
+                        connection.release();
+                        if (error) throw error;
+                    });
+                }
+            });
         }
         
-        if (req.body.eid == 4){
-            //event is tag logout
+        if (req.body.eid == 4){     //event is tag logout
             //-> check if previous event for same machine/tag was tag login
-            //else ignore event
+            connection.query('SELECT * FROM logs WHERE mid=? AND tid=? ORDER BY lid DESC LIMIT 1', [req.body.mid, req.body.tid], function(error, results, fields) {
+                if (error) throw error;
+                if (results[0].eid == 3){
+                    //everithing is fine
+                } else {
+                    //ignore event
+                    return;
+                }
+            });
         }
         
         //res.json(req.body);
@@ -1436,7 +1452,6 @@ exports.create_a_log = function(req, res) {
             connection.release();
             if (error) throw error;
             res.json(results);
-            // Neat!
         });
         
         connection.on('error', function(err) {      
@@ -1454,7 +1469,7 @@ exports.read_a_log = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         
-        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs WHERE lid=' + req.params.lid, function(error, rows, fields) {
+        connection.query('SELECT lid, UNIX_TIMESTAMP(timestamp) timestamp, mid, tid, eid, remarks, iid FROM logs WHERE lid=?', req.params.lid, function(error, rows, fields) {
             connection.release();
             if (error) {
                 res.send(error);

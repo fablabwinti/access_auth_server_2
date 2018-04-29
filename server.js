@@ -1,12 +1,12 @@
+'use strict';
+const config = require('./config');
 var express = require('express');
 var app = express();
-var port = process.env.PORT || 3000;
 var mysql = require('mysql');
 //var model = require('./api/models/aasModel');
 var bodyParser = require('body-parser');
 var session = require('express-session');
 var helmet = require('helmet');
-
 
 // init helmet (header security)
 app.use(helmet());
@@ -49,6 +49,6 @@ app.set('views', './views');
 var routes = require('./api/routes/aasRoutes');
 routes(app);
 
-app.listen(port);
+app.listen(config.httpPort);
 
-console.log('AAS RESTful API server started on: ' + port);
+console.log('AAS RESTful API server started on: ' + config.httpPort);

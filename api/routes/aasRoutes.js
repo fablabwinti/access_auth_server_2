@@ -3,7 +3,7 @@
 module.exports = function(app) {
     var aas = require('../controllers/aasController');
 
-    // Frontend Routes
+    /*------------ Frontend routes -------------*/
     app.route('/')
     .get(aas.tag_summary);
     
@@ -61,7 +61,8 @@ module.exports = function(app) {
     .get(aas.logout);
 
     
-    // machine Routes
+    /*------------ API routes -------------*/
+    // machines
     app.route('/api/machines')
     .get(aas.list_all_machines)
     .post(aas.create_a_machine);
@@ -78,7 +79,7 @@ module.exports = function(app) {
     .get(aas.list_all_machine_logs);
 
     
-    // tags Routes
+    // tags
     app.route('/api/tags')
     .get(aas.list_all_tags)
     .post(aas.create_a_tag);
@@ -89,7 +90,7 @@ module.exports = function(app) {
     .delete(aas.delete_a_tag);
 
     
-    // rights Routes
+    // rights
     app.route('/api/rights')
     .get(aas.list_all_rights)
     .post(aas.create_a_right);
@@ -100,7 +101,7 @@ module.exports = function(app) {
     .delete(aas.delete_a_right);
 
     
-    // events Routes
+    // events
     app.route('/api/events')
     .get(aas.list_all_events)
     .post(aas.create_a_event);
@@ -111,7 +112,7 @@ module.exports = function(app) {
     .delete(aas.delete_a_event);
 
     
-    // logs Routes
+    // logs
     app.route('/api/logs')
     .get(aas.list_all_logs)
     .post(aas.create_a_log);
@@ -122,7 +123,7 @@ module.exports = function(app) {
     .delete(aas.delete_a_log);
 
         
-    // timestamp Route
+    // timestamp
     app.route('/api/timestamp')
     .get(aas.get_timestamp)
 
