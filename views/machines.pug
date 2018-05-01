@@ -9,6 +9,9 @@ block content
             th MID
             th Name
             th Config
+            th Price
+            th Period
+            th Min. Periods
             th
                 a(href='/machine_edit')= 'Add'
             each machine in machines
@@ -16,6 +19,9 @@ block content
                     td #{machine.mid}
                     td #{machine.name}
                     td #{machine.config}
+                    td #{machine.price}
+                    td #{machine.period}
+                    td #{machine.min_periods}
                     td
                         a(href='/machine_edit?mid=' + machine.mid)= 'Edit'
                     

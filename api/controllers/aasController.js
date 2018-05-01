@@ -32,6 +32,7 @@ var menues_admin = Array(
 
 var menues_lm = Array(
     {id: 'home', text: 'Create Invoice', link: '/'},
+    {id: 'invoices', text: 'Invoices', link: '/invoices'},    
     {id: 'tags', text: 'Tags', link: '/tags'},
     {id: 'rights', text: 'Rights', link: '/rights'},    
     {id: 'user', text: 'User', link: '/user_edit'},    
@@ -101,7 +102,7 @@ exports.tag_summary = function(req, res) {
     }
 };
 
-exports.tags = function(req, res) {
+exports.invoices = function(req, res) {
     if (!req.session.uid) {
         res.redirect('/login');
         return;
@@ -116,13 +117,13 @@ exports.tags = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
 
-        var tags = Array();
-        connection.query('SELECT * FROM tags', function(error, rows, fields) {
+        var invoices = Array();
+        connection.query('SELECT iid, tid, i.name, total, date_format(createdAt, \'%d.%m.%Y %h:%i:%s\') createdAt, date_format(payedAt, \'%d.%m.%Y %h:%i:%s\') payedAt, u.name collectedBy FROM invoices i LEFT JOIN users u ON u.uid=i.uid', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
-                tags = rows;
-                res.render('tags', {title: 'FabLab Access Auth', message: 'Tags', menues: menues, tags: tags});
+                invoices = rows;
+                res.render('invoices', {title: 'FabLab Access Auth', message: 'Invoices', menues: menues, invoices: invoices});
             }            
         });
         connection.release();
@@ -152,7 +153,7 @@ exports.logs = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('DELETE FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
+                connection.query('DELETE FROM logs WHERE lid=?', req.query.lid, function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -182,6 +183,34 @@ exports.logs = function(req, res) {
             connection.release();
         });
     }
+};
+
+exports.tags = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
+    pool.getConnection(function(err,connection){
+        if (err) {
+            res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+            return;
+        }  
+        //console.log('connected as id ' + connection.threadId);
+
+        var tags = Array();
+        connection.query('SELECT * FROM tags', function(error, rows, fields) {
+            if (error) {
+                res.send(error);
+            } else {
+                tags = rows;
+                res.render('tags', {title: 'FabLab Access Auth', message: 'Tags', menues: menues, tags: tags});
+            }            
+        });
+        connection.release();
+    });
 };
 
 exports.machines = function(req, res) {
@@ -345,7 +374,8 @@ exports.users = function(req, res) {
     });
 };
 
-exports.tag_edit = function(req, res) {
+
+exports.invoice_create = function(req, res) {
     if (!req.session.uid) {
         res.redirect('/login');
         return;
@@ -353,9 +383,104 @@ exports.tag_edit = function(req, res) {
         menues = setMenues(req);
     }
 
-    if (req.query.tid){
-        if (!req.body.uid){
+    if (req.query.tid) {
+        pool.getConnection(function(err,connection){
+            if (err) {
+                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                return;
+            }  
+            //console.log('connected as id ' + connection.threadId);
+
+            var logs = Array();
+            connection.query('SELECT lid, timestamp, l.tid, t.name, l.mid, m.price, m.period, m.min_periods, eid FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN tags t ON l.tid=t.tid WHERE l.tid=1 AND ISNULL(iid) ORDER BY l.mid, l.timestamp', req.query.tid, function(error, rows, fields) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    logs = rows;
+                    if (logs.length > 1) {
+                        //Create new invoice
+                        var iid;
+                        connection.query('INSERT invoices SET tid=?, name=?, uid=?', [req.query.tid, logs[0].name, req.session.uid], function(error, result) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                //res.send(result);
+                                iid = result.insertId;
+                                console.log('iid:' + iid);
+                                var lidStart, lidEnd, start, end, machine, price, period, min_perionds, minutes, periods, minPeriods, sum;
+                                var total = 0;
+                                for (var i=0; i<logs.length; i++){
+                                    if (logs[i].eid == 4){  //tag login
+                                        lidStart = logs[i].lid;
+                                        start = logs[i].timestamp;
+                                        machine = logs[i].mid;
+                                        price = logs[i].price;
+                                        console.log('Price:' + price);
+                                        period = logs[i].period;
+                                        minPeriods = logs[i].min_periods;
+                                    }
+                                    i++;
+                                    if (machine == logs[i].mid) {
+                                        //still the same machine
+                                        if (logs[i].eid == 5){  //tag logout
+                                            lidEnd = logs[i].lid;
+                                            end = logs[i].timestamp;
+                                            minutes = (end - start) / 1000/ 60;
+                                            periods = Math.ceil(minutes / period);
+                                            if (periods < minPeriods) periods = minPeriods;
+                                            console.log('Periods:' + periods);
+                                            sum = periods * price;
+                                            console.log('Sum:' + sum);
+                                            total = total + sum;
+
+                                            connection.query('UPDATE logs SET iid=? WHERE lid=? OR lid=?', [iid, lidStart, lidEnd], function(error, result) {
+                                                if (error) {
+                                                    res.send(error);
+                                                } else {
+                                                    console.log(result);
+                                                }            
+                                            });
+                                        } else {
+                                            //missing end
+                                        }
+                                    } else {
+                                        //missing end
+                                    }
+                                }
+                                console.log('Total:' + total);
+                                console.log('IID:' + iid);
+                                connection.query('UPDATE invoices SET total=? WHERE iid=?', [total, iid], function(error, result) {
+                                    if (error) {
+                                        res.send(error);
+                                    } else {
+                                        res.redirect('/invoice_edit?iid=' + iid);
+                                    }            
+                                });
+
+                            }            
+                        });
+                    }
+                }            
+            });
+            connection.release();
+        });
+    } else {
+        res.redirect('/tag-summary');
+    }
+};
+
+exports.invoice_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
+    if (req.query.iid){
+        if (!req.body.hidden_iid){
             // not post data -> load tag with given tid
+            console.log('show');
             pool.getConnection(function(err,connection){
                 if (err) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -363,44 +488,56 @@ exports.tag_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                var tag;
-                connection.query('SELECT * FROM tags WHERE tid=?', req.query.tid, function(error, rows, fields) {
+                var invoice;
+                connection.query('SELECT iid, date_format(createdAt, \'%d.%m.%Y %h:%i:%s\') createdAt, tid, name, total, date_format(payedAt, \'%d.%m.%Y %h:%i:%s\') payedAt, uid FROM invoices WHERE iid=?', req.query.iid, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
                     } else {
-                        tag = rows[0];
-                        res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Edit Tag', menues: menues, tag: tag});
+                        invoice = rows[0];
+                        var tags = Array();
+                        connection.query('SELECT * FROM tags', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                tags = rows;
+                                res.render('invoice_edit', {title: 'FabLab Access Auth', message: 'Edit Invoice', menues: menues, invoice: invoice, tags: tags});
+                            }
+                        });
                     }            
                 });
             });
         } else {
             // update data and redirect to list
+            console.log('update');
             pool.getConnection(function(err,connection){
                 if (err) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
                     return;
                 }  
                 //console.log('connected as id ' + connection.threadId);
-
-                connection.query('UPDATE tags SET uid=?, name=? WHERE tid=?', [req.body.uid, req.body.name, req.query.tid], function(error, rows, fields) {
+                
+                var total = 0;
+                if (req.body.total > 0) total = req.body.total;
+                connection.query('UPDATE invoices SET total=?, uid=? WHERE iid=?', [total, req.session.uid, req.query.iid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
-                        tag = rows[0];
-                        res.redirect('/tags');
+                        res.redirect('/invoices');
                     }            
                 });
                 connection.release();
             });
         }
     } else {
-        if (!req.body.uid){
+        if (!req.body.hidden_iid){
             // no tid -> load empfty form to add new tag
+            console.log('add new');
             var tag;
-            res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Add Tag', menues: menues, tag: tag});
+            res.render('invoice_edit', {title: 'FabLab Access Auth', message: 'Add Invoice', menues: menues, tag: invoice});
         } else {
             // insert data and redirect to list
+            console.log('insert');
             pool.getConnection(function(err,connection){
                 if (err) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -408,17 +545,49 @@ exports.tag_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT tags SET uid=?, name=?', [req.body.uid, req.body.name], function(error, rows, fields) {
+                connection.query('INSERT invoices SET tid=?, name=?, total=?, payedAt=?, uid=?', [req.body.tid, req.body.name, req.body.total, req.body.payedAt, req.session.uid], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
                     } else {
-                        tag = rows[0];
-                        res.redirect('/tags');
+                        res.redirect('/invoices');
                     }            
                 });
             });
         }
+    }
+};
+
+exports.invoice_payed = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
+    if (req.query.iid){
+        // update data and redirect to list
+        pool.getConnection(function(err,connection){
+            if (err) {
+                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                return;
+            }  
+            //console.log('connected as id ' + connection.threadId);
+
+            var invoice;
+            connection.query('UPDATE invoices SET payedAt=CURRENT_TIMESTAMP, uid=? WHERE iid=?', [req.session.uid, req.query.iid], function(error, rows, fields) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    invoice = rows[0];
+                    res.redirect('/invoices');
+                }            
+            });
+            connection.release();
+        });
+    } else {
+        res.redirect('/invoices');
     }
 };
 
@@ -449,7 +618,7 @@ exports.log_edit = function(req, res) {
                 var machines = Array();
                 var tags = Array();
                 var events = Array();
-                connection.query('SELECT * FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
+                connection.query('SELECT lid, date_format(timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, tid, mid, eid, remarks FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -489,11 +658,10 @@ exports.log_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE logs SET timestamp=?, mid=?, tid=?, eid=?, remarks=? WHERE lid=?', [req.body.timestamp, req.body.mid, req.body.tid, req.body.eid, req.body.remarks, req.query.lid], function(error, rows, fields) {
+                connection.query('UPDATE logs SET timestamp=?, mid=?, tid=?, eid=?, remarks=? WHERE lid=?', [req.body.timestamp, req.body.mid, req.body.tid, req.body.eid, req.body.remarks, req.query.lid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
-                        tag = rows[0];
                         res.redirect('/logs');
                     }            
                 });
@@ -547,13 +715,87 @@ exports.log_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT logs SET timestamp=?, mid=?, tid=?, eid=?, remarks=?', [req.body.timestamp, req.body.mid, req.body.tid, req.body.eid, req.body.remarks], function(error, rows, fields) {
+                connection.query('INSERT logs SET timestamp=?, mid=?, tid=?, eid=?, remarks=?', [req.body.timestamp, req.body.mid, req.body.tid, req.body.eid, req.body.remarks], function(error, result) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/logs');
+                    }            
+                });
+            });
+        }
+    }
+};
+
+exports.tag_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
+    if (req.query.tid){
+        if (!req.body.uid){
+            // not post data -> load tag with given tid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                var tag;
+                connection.query('SELECT * FROM tags WHERE tid=?', req.query.tid, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
                     } else {
                         tag = rows[0];
-                        res.redirect('/logs');
+                        res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Edit Tag', menues: menues, tag: tag});
+                    }            
+                });
+            });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE tags SET uid=?, name=? WHERE tid=?', [req.body.uid, req.body.name, req.query.tid], function(error, result) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/tags');
+                    }            
+                });
+                connection.release();
+            });
+        }
+    } else {
+        if (!req.body.uid){
+            // no tid -> load empfty form to add new tag
+            var tag;
+            res.render('tag_edit', {title: 'FabLab Access Auth', message: 'Add Tag', menues: menues, tag: tag});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT tags SET uid=?, name=?', [req.body.uid, req.body.name], function(error, result) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/tags');
                     }            
                 });
             });
@@ -604,7 +846,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE machines SET name=?, config=? WHERE mid=?', [req.body.name, req.body.config, req.query.mid], function(error, rows, fields) {
+                connection.query('UPDATE machines SET name=?, config=? WHERE mid=?', [req.body.name, req.body.config, req.query.mid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -628,7 +870,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT machines SET name=?, config=?', [req.body.name, req.body.config], function(error, rows, fields) {
+                connection.query('INSERT machines SET name=?, config=?', [req.body.name, req.body.config], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -692,7 +934,7 @@ exports.article_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE articles SET title=?, description=?, url=?, price=?, uid=? WHERE aid=?', [req.body.title, req.body.description, req.body.url, req.body.price, req.body.uid, req.query.aid], function(error, rows, fields) {
+                connection.query('UPDATE articles SET title=?, description=?, url=?, price=?, uid=? WHERE aid=?', [req.body.title, req.body.description, req.body.url, req.body.price, req.body.uid, req.query.aid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -716,7 +958,7 @@ exports.article_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT articles SET title=?, description=?, url=?, price=?, uid=?', [req.body.title, req.body.description, req.body.url, req.body.price, req.body.uid], function(error, rows, fields) {
+                connection.query('INSERT articles SET title=?, description=?, url=?, price=?, uid=?', [req.body.title, req.body.description, req.body.url, req.body.price, req.body.uid], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -772,7 +1014,7 @@ exports.event_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE events SET name=? WHERE eid=?', [req.body.name, req.query.eid], function(error, rows, fields) {
+                connection.query('UPDATE events SET name=? WHERE eid=?', [req.body.name, req.query.eid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -796,7 +1038,7 @@ exports.event_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT events SET name=?', req.body.name, function(error, rows, fields) {
+                connection.query('INSERT events SET name=?', req.body.name, function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -862,7 +1104,7 @@ exports.right_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE rights SET tid=?, mid=?, start=?, end=? WHERE rid=?', [req.body.tid, req.body.mid, req.body.start, req.body.end, req.query.rid], function(error, rows, fields) {
+                connection.query('UPDATE rights SET tid=?, mid=?, start=?, end=? WHERE rid=?', [req.body.tid, req.body.mid, req.body.start, req.body.end, req.query.rid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -910,7 +1152,7 @@ exports.right_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT rights SET tid=?, mid=?, start=?, end=?', [req.body.tid, req.body.mid, req.body.start, req.body.end], function(error, rows, fields) {
+                connection.query('INSERT rights SET tid=?, mid=?, start=?, end=?', [req.body.tid, req.body.mid, req.body.start, req.body.end], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -965,7 +1207,7 @@ exports.user_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE users SET username=?' + (req.body.password ? ', password_hash=MD5("' + salt + mysql.escape(req.body.password) + '")' : '') + ', name=?, role=? WHERE uid=?', [req.body.username, req.body.name, req.body.role, req.query.uid], function(error, rows, fields) {
+                connection.query('UPDATE users SET username=?' + (req.body.password ? ', password_hash=MD5("' + salt + mysql.escape(req.body.password) + '")' : '') + ', name=?, role=? WHERE uid=?', [req.body.username, req.body.name, req.body.role, req.query.uid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -989,7 +1231,7 @@ exports.user_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT users SET username=?, password_hash=MD5("' + salt + mysql.escape(req.body.password) + '"), name=?, role=?', [req.body.username, req.body.name, req.body.role], function(error, rows, fields) {
+                connection.query('INSERT users SET username=?, password_hash=MD5("' + salt + mysql.escape(req.body.password) + '"), name=?, role=?', [req.body.username, req.body.name, req.body.role], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);

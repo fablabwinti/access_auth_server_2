@@ -11,19 +11,18 @@ module.exports = function(app) {
     .get(aas.tag_summary)
     .post(aas.tag_summary);
 
-    app.route('/tags')
-    .get(aas.tags);
+    app.route('/invoices')
+    .get(aas.invoices);
 
-    app.route('/tag_edit')
-    .get(aas.tag_edit)
-    .post(aas.tag_edit);
+    app.route('/invoice_create')
+    .get(aas.invoice_create)
     
-    app.route('/rights')
-    .get(aas.rights);
+    app.route('/invoice_edit')
+    .get(aas.invoice_edit)
+    .post(aas.invoice_edit);
 
-    app.route('/right_edit')
-    .get(aas.right_edit)
-    .post(aas.right_edit);
+    app.route('/invoice_payed')
+    .get(aas.invoice_payed)
 
     app.route('/logs')
     .get(aas.logs);
@@ -31,6 +30,13 @@ module.exports = function(app) {
     app.route('/log_edit')
     .get(aas.log_edit)
     .post(aas.log_edit);
+
+    app.route('/tags')
+    .get(aas.tags);
+
+    app.route('/tag_edit')
+    .get(aas.tag_edit)
+    .post(aas.tag_edit);
     
     app.route('/machines')
     .get(aas.machines);
@@ -52,6 +58,13 @@ module.exports = function(app) {
     app.route('/event_edit')
     .get(aas.event_edit)
     .post(aas.event_edit);
+    
+    app.route('/rights')
+    .get(aas.rights);
+
+    app.route('/right_edit')
+    .get(aas.right_edit)
+    .post(aas.right_edit);
     
     app.route('/users')
     .get(aas.users);

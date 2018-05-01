@@ -1,0 +1,30 @@
+//- invoices.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th IID
+            th Created At
+            th TID
+            th Name
+            th Total
+            th Payed At
+            th Collected By
+            th
+                //a(href='/invoice_edit')= 'Add'
+            each invoice in invoices
+                tr
+                    td #{invoice.iid}
+                    td #{invoice.createdAt}
+                    td #{invoice.tid}
+                    td #{invoice.name}
+                    td(style='text-align:right;')= parseFloat(Math.round(invoice.total * 100) / 100).toFixed(2)
+                    td #{invoice.payedAt}
+                    td #{invoice.collectedBy}
+                    td
+                        a(href='/invoice_edit?iid=' + invoice.iid)= 'Edit'
+                        a(href='/invoice_payed?iid=' + invoice.iid)= 'Payed'
+                    

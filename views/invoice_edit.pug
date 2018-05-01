@@ -1,0 +1,28 @@
+//- invoice_edit.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/invoice_edit' + (undefined===invoice ? '' : '?iid=' + invoice.iid))
+        input#hidden_iid.form-control(type='hidden' name='hidden_iid' value=(undefined===invoice ? '' : invoice.iid))
+        div.form-group
+            label(for='iid') IID:
+            input#iid.form-control(type='text' size=50 name='iid' disabled value=(undefined===invoice ? '' : invoice.iid))
+        div.form-group
+            label(for='createdAt') Created at:
+            input#createdAt.form-control(type='text' size=50 name='createdAt' disabled value=(undefined===invoice ? '' : invoice.createdAt))
+        div.form-group
+            label(for='tid') TID:
+            input#tid.form-control(type='text' size=50 name='tid' disabled value=(undefined===invoice ? '' : invoice.tid))
+        div.form-group
+            label(for='name') Name:
+            input#name.form-control(type='text' size=50 name='name' disabled value=(undefined===invoice ? '' : invoice.name))
+        div.form-group
+            label(for='total') Total:
+            input#total.form-control(type='text' size=50 name='total' autofocus value=(undefined===invoice ? '' : invoice.total))
+        div.form-group
+            label(for='payedAt') Payed At:
+            input#payedAt.form-control(type='text' size=50 name='payedAt' value=(undefined===invoice ? '' : invoice.payedAt))
+        div.form-group
+            button.btn.btn-primary(type='submit') Save

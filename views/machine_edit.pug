@@ -12,4 +12,13 @@ block content
             label(for='config') Config:
             input#config.form-control(type='text', name='config' value=(undefined===machine ? '' : machine.config))
         div.form-group
+            label(for='price') Price:
+            input#price.form-control(type='text', name='price' value=(undefined===machine ? '' : machine.price))
+        div.form-group
+            label(for='period') Period:
+            input#period.form-control(type='text', name='period' value=(undefined===machine ? '' : machine.period))
+        div.form-group
+            label(for='min_periods') Min. Periods:
+            input#min_periods.form-control(type='text', name='min_periods' value=(undefined===machine ? '' : machine.min_periods))
+        div.form-group
             button.btn.btn-primary(type='submit') Save

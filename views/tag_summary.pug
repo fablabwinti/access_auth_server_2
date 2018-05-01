@@ -15,7 +15,7 @@ block content
             input#name.form-control(type='text', name='name' value=(undefined===tag ? '' : tag.name) disabled="disabled")
 
 
-    form(method='POST' action='/tag_summary?task=invoice')
+    form(method='GET' action='/invoice_create' + (undefined===tag ? '' : '?tid=' + tag.tid))
         div.form-group
             table
                 th Timestamp
@@ -29,5 +29,11 @@ block content
                         td #{log.event}
                         td #{log.remarks}
                         
-            button.btn.btn-primary(type='submit') Invoice
+            -if (logs.length>0)
+                //button.btn.btn-primary(type='submit') Invoice
+                -if (undefined===tag)
+                    span
+                -else
+                    a.btn.btn-primary(href='/invoice_create?tid=' + tag.tid)= 'Create Invoice'
+
 
