@@ -1,0 +1,25 @@
+//- articles.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th AID
+            th Title
+            th Text
+            th Price
+            th Units
+            th
+                a(href='/article_edit')= 'Add'
+            each article in articles
+                tr
+                    td #{article.aid}
+                    td #{article.title}
+                    td #{article.description}
+                    td(style='text-align:right;')= parseFloat(Math.round(article.price * 100) / 100).toFixed(2)
+                    td #{article.units}
+                    td
+                        a(href='/article_edit?aid=' + article.aid)= 'Edit'
+                    

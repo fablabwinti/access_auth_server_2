@@ -1,0 +1,30 @@
+//- machine_edit.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/article_edit' + (undefined===article ? '' : '?aid=' + article.aid))
+        div.form-group
+            label(for='title') Title:
+            input#title.form-control(type='text' size=50 name='title' autofocus value=(undefined===article ? '' : article.title))
+        div.form-group
+            label(for='text') Description:
+            textarea#description.form-control(cols=47 rows=2 name='description')=(undefined===article ? '' : article.description)
+        div.form-group
+            label(for='url') URL:
+            input#url.form-control(type='text' size=50 name='url' value=(undefined===article ? '' : article.url))
+        div.form-group
+            label(for='price') Price:
+            input#price.form-control(type='text' size=20 name='price' autofocus value=(undefined===article ? '' : article.price))
+        div.form-group
+            label(for='uid') Units:
+            select#tag.form-control(name='uid')
+                option(value=0) bitte auswählen
+                each unit in units
+                    -if (undefined===article)
+                        option(value=unit.uid) #{unit.name}
+                    -else
+                        option(value=unit.uid selected=(unit.uid==article.uid)) #{unit.name}
+        div.form-group
+            button.btn.btn-primary(type='submit') Save

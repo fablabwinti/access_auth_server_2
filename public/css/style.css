@@ -7,6 +7,7 @@ h1 {
 }
 label {
     clear: both;
+    vertical-align: top;
 }
 input {
     width: 100%;
@@ -34,4 +35,7 @@ input[type=submit] {
     padding: 10px;
     border-radius: 20px;
     margin-top: 20px;
+}
+textarea.form-control {
+    font: -moz-field;
 }

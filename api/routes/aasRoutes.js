@@ -38,6 +38,13 @@ module.exports = function(app) {
     app.route('/machine_edit')
     .get(aas.machine_edit)
     .post(aas.machine_edit);
+    
+    app.route('/articles')
+    .get(aas.articles);
+
+    app.route('/article_edit')
+    .get(aas.article_edit)
+    .post(aas.article_edit);
 
     app.route('/events')
     .get(aas.events);

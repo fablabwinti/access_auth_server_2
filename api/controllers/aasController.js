@@ -21,12 +21,13 @@ var menues_admin = Array(
     {id: 'home', text: 'Create Invoice', link: '/'},
     {id: 'invoices', text: 'Invoices', link: '/invoices'},    
     {id: 'logs', text: 'Logs', link: '/logs'},    
-    {id: 'machines', text: 'Machines', link: '/machines'},
     {id: 'tags', text: 'Tags', link: '/tags'},
+    {id: 'machines', text: 'Machines', link: '/machines'},
+    {id: 'articles', text: 'Articles', link: '/articles'},
     {id: 'events', text: 'Events', link: '/events'},    
     {id: 'rights', text: 'Rights', link: '/rights'},    
     {id: 'users', text: 'Users', link: '/users'},    
-    {id: 7, text: 'Logout', link: '/logout'}    
+    {id: 'logout', text: 'Logout', link: '/logout'}    
 );
 
 var menues_lm = Array(
@@ -34,7 +35,7 @@ var menues_lm = Array(
     {id: 'tags', text: 'Tags', link: '/tags'},
     {id: 'rights', text: 'Rights', link: '/rights'},    
     {id: 'user', text: 'User', link: '/user_edit'},    
-    {id: 7, text: 'Logout', link: '/logout'}    
+    {id: 'logout', text: 'Logout', link: '/logout'}    
 );
 var menues = Array();
 
@@ -210,6 +211,40 @@ exports.machines = function(req, res) {
             } else {
                 machines = rows;
                 res.render('machines', {title: 'FabLab Access Auth', message: 'Machines', menues: menues, machines: machines});
+            }            
+        });
+        connection.release();
+    });
+};
+
+
+exports.articles = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
+    pool.getConnection(function(err,connection){
+        if (err) {
+            res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+            return;
+        }  
+        //console.log('connected as id ' + connection.threadId);
+
+        var articles = Array();
+        connection.query('SELECT aid, title, description, price, u.name units FROM articles a LEFT JOIN price_units u ON a.uid=u.uid', function(error, rows, fields) {
+            if (error) {
+                res.send(error);
+            } else {
+                articles = rows;
+                res.render('articles', {title: 'FabLab Access Auth', message: 'Articles', menues: menues, articles: articles});
             }            
         });
         connection.release();
@@ -606,6 +641,94 @@ exports.machine_edit = function(req, res) {
     }
 };
 
+exports.article_edit = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/');
+            return;
+        }
+        menues = setMenues(req);
+    }
+
+    if (req.query.aid){
+        if (!req.body.title){
+            // not post data -> load article with given aid
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                var article;
+                connection.query('SELECT * FROM articles WHERE aid=?', req.query.aid, function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        article = rows[0];
+                        var units = Array();
+                        connection.query('SELECT * FROM price_units', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                units = rows;
+                                res.render('article_edit', {title: 'FabLab Access Auth', message: 'Edit Article', menues: menues, article: article, units: units});
+                            }
+                        });
+                    }
+                });
+            });
+        } else {
+            // update data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                connection.query('UPDATE articles SET title=?, description=?, url=?, price=?, uid=? WHERE aid=?', [req.body.title, req.body.description, req.body.url, req.body.price, req.body.uid, req.query.aid], function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/articles');
+                    }            
+                });
+                connection.release();
+            });
+        }
+    } else {
+        if (!req.body.title){
+            // no aid -> load empfty form to add new article
+            var article;
+            res.render('article_edit', {title: 'FabLab Access Auth', message: 'Add Article', menues: menues, article: article});
+        } else {
+            // insert data and redirect to list
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                connection.query('INSERT articles SET title=?, description=?, url=?, price=?, uid=?', [req.body.title, req.body.description, req.body.url, req.body.price, req.body.uid], function(error, rows, fields) {
+                    connection.release();
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        res.redirect('/articles');
+                    }            
+                });
+            });
+        }
+    }
+};
+
 exports.event_edit = function(req, res) {
     if (!req.session.uid) {
         res.redirect('/login');
@@ -893,7 +1016,7 @@ exports.login = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('SELECT uid, role FROM users WHERE username=? AND password_hash=MD5("' + salt + mysql(req.body.password) + '")', req.body.username, function(error, rows, fields) {
+                connection.query('SELECT uid, role FROM users WHERE username=? AND password_hash=MD5("' + salt + req.body.password + '")', req.body.username, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -1426,7 +1549,7 @@ exports.create_a_log = function(req, res) {
                     //everthing is fine
                 } else {
                     //insert tag logout before new login
-                    connection.query('INSERT INTO logs SET timestamp=?, mid=?, tid=?, eid=4, remarks=?, iid=?', [req.body.timestamp-1, req.body.mid, req.body.tid, 'Auto logout before new login!', req.body.iid], function(error, results, fields) {
+                    connection.query('INSERT INTO logs SET timestamp=?, mid=?, tid=?, eid=4, remarks=?', [req.body.timestamp-1, req.body.mid, req.body.tid, 'Auto logout before new login!'], function(error, results, fields) {
                         connection.release();
                         if (error) throw error;
                     });
