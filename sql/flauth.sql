@@ -34,24 +34,24 @@ CREATE TABLE IF NOT EXISTS `articles` (
 -- Exportiere Daten aus Tabelle flauth.articles: ~20 rows (ungefähr)
 /*!40000 ALTER TABLE `articles` DISABLE KEYS */;
 INSERT IGNORE INTO `articles` (`aid`, `title`, `description`, `url`, `price`, `uid`, `min_periods`, `createdAt`, `updatedAt`) VALUES
-	(1, 'Sperrholz 3mm', 'Sperrholz Pappel\r\n600 x 400 x 4 mm', '', 5.00, 1, NULL, '2017-01-01 00:00:00', '2018-05-01 15:28:08'),
-	(2, 'MDF 3mm', 'MDF\r\n600 x 400 x 3 mm', '', 2.50, 1, NULL, '2018-04-30 11:29:00', '2018-05-01 15:28:14'),
-	(3, 'Acryl klar (600x400)', 'Acrylglas (PMMA) klar\r\n600 x 400 x 3 mm', '', 24.00, 1, NULL, '2018-04-30 11:29:00', '2018-05-01 15:28:19'),
-	(4, 'Acryl klar (400x300)', 'Acrylglas (PMMA) klar\r\n400 x 300 x 3 mm', '', 12.00, 1, NULL, '2018-05-01 11:42:44', '2018-05-01 15:15:12'),
-	(50, 'Ausdruck/Kopie A4 (sw, einseitig)', 'Ausdruck/Kopie A4 (einseitig, schwarz/weiss)', '', 0.15, 1, NULL, '2018-05-04 17:12:24', '2018-05-04 17:18:18'),
-	(51, 'Ausdruck/Kopie A4 (sw, doppelseitig)', 'Ausdruck/Kopie A4 (doppelseitig, schwarz/weiss)', '', 0.30, 1, NULL, '2018-05-04 17:16:28', '2018-05-04 17:18:58'),
-	(52, 'Ausdruck/Kopie A4 (farbig, einseitig)', 'Ausdruck/Kopie A4 (einseitig, farbig)', '', 0.50, 1, NULL, '2018-05-04 17:13:42', '2018-05-04 17:19:03'),
-	(53, 'Ausdruck/Kopie A4 (farbig, doppelseitig)', 'Ausdruck/Kopie A4 (doppelseitig, farbig)', '', 1.00, 1, NULL, '2018-05-04 17:16:56', '2018-05-04 17:18:46'),
-	(100, 'Fidget Spinner', 'Kit: Fidget Spinner', '', 8.00, 1, NULL, '2018-05-04 16:30:03', '2018-05-04 16:30:25'),
-	(101, 'Bristlebot', 'Kit: Bristlebot', '', 10.00, 1, NULL, '2018-05-04 16:31:05', '2018-05-04 16:31:08'),
-	(102, 'GetInLine', 'Kit: GetInLine Robot', '', 18.00, 1, NULL, '2018-05-04 16:31:53', '2018-05-04 16:31:54'),
-	(103, 'Gartenlaterne (ungelötet)', 'Kit: Solar-Gartenlaterne (ungelötet)', '', 18.00, 1, NULL, '2018-05-04 16:32:34', '2018-05-04 16:35:16'),
-	(104, 'Gartenlaterne (gelötet)', 'Kit: Solar-Gartenlaterne (SMD gelötet)', '', 22.00, 1, NULL, '2018-05-04 16:33:51', '2018-05-04 16:35:29'),
-	(105, 'Senso', 'Kit: Senso', '', 30.00, 1, NULL, '2018-05-04 16:35:48', '2018-05-04 16:35:48'),
-	(106, '3x5 LED-Matrix', 'Kit: 3x5 LED-Matrix', '', 30.00, 1, NULL, '2018-05-04 16:36:21', '2018-05-04 16:36:22'),
-	(200, 'Getränk 5dl PET', 'Getränk 5dl PET (Mineral, Cola, Fanta, Eistee, Shorley...)', '', 2.50, 1, NULL, '2018-05-04 16:27:37', '2018-05-04 16:37:41'),
-	(201, 'Bier', 'Bier', '', 4.00, 1, NULL, '2018-05-04 16:28:26', '2018-05-04 16:37:45'),
-	(203, 'Kaffee', 'Kaffee (Kapsel)', '', 1.00, 1, NULL, '2018-05-04 16:29:16', '2018-05-04 16:38:27'),
+	(1, 'Sperrholz 3mm', 'Sperrholz Pappel\r\n600 x 400 x 4 mm', '', 5.00, 1, 1, '2017-01-01 00:00:00', '2018-05-04 17:57:17'),
+	(2, 'MDF 3mm', 'MDF\r\n600 x 400 x 3 mm', '', 2.50, 1, 1, '2018-04-30 11:29:00', '2018-05-04 17:58:17'),
+	(3, 'Acryl klar (600x400)', 'Acrylglas (PMMA) klar\r\n600 x 400 x 3 mm', '', 24.00, 1, 1, '2018-04-30 11:29:00', '2018-05-04 17:58:17'),
+	(4, 'Acryl klar (400x300)', 'Acrylglas (PMMA) klar\r\n400 x 300 x 3 mm', '', 12.00, 1, 1, '2018-05-01 11:42:44', '2018-05-04 17:58:17'),
+	(50, 'Ausdruck/Kopie A4 (sw, einseitig)', 'Ausdruck/Kopie A4 (einseitig, schwarz/weiss)', '', 0.15, 1, 1, '2018-05-04 17:12:24', '2018-05-04 17:58:17'),
+	(51, 'Ausdruck/Kopie A4 (sw, doppelseitig)', 'Ausdruck/Kopie A4 (doppelseitig, schwarz/weiss)', '', 0.30, 1, 1, '2018-05-04 17:16:28', '2018-05-04 17:58:17'),
+	(52, 'Ausdruck/Kopie A4 (farbig, einseitig)', 'Ausdruck/Kopie A4 (einseitig, farbig)', '', 0.50, 1, 1, '2018-05-04 17:13:42', '2018-05-04 17:58:17'),
+	(53, 'Ausdruck/Kopie A4 (farbig, doppelseitig)', 'Ausdruck/Kopie A4 (doppelseitig, farbig)', '', 1.00, 1, 1, '2018-05-04 17:16:56', '2018-05-04 17:58:17'),
+	(100, 'Fidget Spinner', 'Kit: Fidget Spinner', '', 8.00, 1, 1, '2018-05-04 16:30:03', '2018-05-04 17:58:17'),
+	(101, 'Bristlebot', 'Kit: Bristlebot', '', 10.00, 1, 1, '2018-05-04 16:31:05', '2018-05-04 17:58:17'),
+	(102, 'GetInLine', 'Kit: GetInLine Robot', '', 18.00, 1, 1, '2018-05-04 16:31:53', '2018-05-04 17:58:17'),
+	(103, 'Gartenlaterne (ungelötet)', 'Kit: Solar-Gartenlaterne (ungelötet)', '', 18.00, 1, 1, '2018-05-04 16:32:34', '2018-05-04 17:58:17'),
+	(104, 'Gartenlaterne (gelötet)', 'Kit: Solar-Gartenlaterne (SMD gelötet)', '', 22.00, 1, 1, '2018-05-04 16:33:51', '2018-05-04 17:58:17'),
+	(105, 'Senso', 'Kit: Senso', '', 30.00, 1, 1, '2018-05-04 16:35:48', '2018-05-04 17:58:17'),
+	(106, '3x5 LED-Matrix', 'Kit: 3x5 LED-Matrix', '', 30.00, 1, 1, '2018-05-04 16:36:21', '2018-05-04 17:58:17'),
+	(200, 'Getränk 5dl PET', 'Getränk 5dl PET (Mineral, Cola, Fanta, Eistee, Shorley...)', '', 2.50, 1, 1, '2018-05-04 16:27:37', '2018-05-04 17:58:17'),
+	(201, 'Bier', 'Bier', '', 4.00, 1, 1, '2018-05-04 16:28:26', '2018-05-04 17:58:17'),
+	(203, 'Kaffee', 'Kaffee (Kapsel)', '', 1.00, 1, 1, '2018-05-04 16:29:16', '2018-05-04 17:58:17'),
 	(300, 'Lagerschublade', 'Lagerschublade unter Laser \r\nfür 1 Woche', '', 2.50, 5, 1, '2018-05-01 11:42:44', '2018-05-04 16:56:57'),
 	(301, 'Lagerbox', 'Lagerbox im weissen Regal \r\nfür 4 Wochen', '', 1.00, 5, 4, '2018-05-01 11:42:44', '2018-05-04 16:56:26');
 /*!40000 ALTER TABLE `articles` ENABLE KEYS */;
@@ -94,7 +94,8 @@ CREATE TABLE IF NOT EXISTS `invoices` (
 -- Exportiere Daten aus Tabelle flauth.invoices: ~1 rows (ungefähr)
 /*!40000 ALTER TABLE `invoices` DISABLE KEYS */;
 INSERT IGNORE INTO `invoices` (`iid`, `tid`, `name`, `total`, `createdAt`, `updatedAt`, `payedAt`, `uid`) VALUES
-	(1, 1, 'Claudio Prezzi', 29.00, '2018-05-01 23:08:13', '2018-05-01 23:08:25', '2018-05-01 23:08:25', 1);
+	(1, 1, 'Claudio Prezzi', 29.00, '2018-05-01 23:08:13', '2018-05-01 23:08:25', '2018-05-01 23:08:25', 1),
+	(4, 1, 'Claudio Prezzi', 9.00, '2018-05-04 18:34:08', '2018-05-04 18:34:08', NULL, 2);
 /*!40000 ALTER TABLE `invoices` ENABLE KEYS */;
 
 -- Exportiere Struktur von Tabelle flauth.logs
@@ -119,8 +120,8 @@ INSERT IGNORE INTO `logs` (`lid`, `timestamp`, `mid`, `aid`, `tid`, `eid`, `rema
 	(3, '2018-01-21 15:15:00', 1, NULL, 0, 1, '', NULL),
 	(4, '2018-04-30 16:00:00', 6, NULL, 1, 4, '', 1),
 	(5, '2018-04-30 16:37:00', 6, NULL, 1, 5, '', 1),
-	(6, '2018-05-04 16:40:12', NULL, 1, 1, 8, NULL, NULL),
-	(7, '2018-05-04 16:54:16', NULL, 301, 1, 8, NULL, NULL);
+	(6, '2018-05-04 16:40:12', NULL, 1, 1, 8, NULL, 4),
+	(7, '2018-05-04 16:54:16', NULL, 301, 1, 8, NULL, 4);
 /*!40000 ALTER TABLE `logs` ENABLE KEYS */;
 
 -- Exportiere Struktur von Tabelle flauth.machines
@@ -260,7 +261,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT IGNORE INTO `users` (`uid`, `username`, `password_hash`, `name`, `role`) VALUES
 	(1, 'info@fablabwinti.ch', 'a57b647e8c19ff326a561c4bd31505d4', 'FabLab Admin', 1),
-	(2, 'claudio.prezzi@fablabwinti.ch', '949a6bf1501f74e475cc98fb651e05c6', 'Claudio Prezzi', 2),
+	(2, 'claudio.prezzi@fablabwinti.ch', '52a824bf40498497cf2d14b0f687c3e5', 'Claudio Prezzi', 2),
 	(3, 'andreas.bachmann@fablabwinti.ch', 'a57b647e8c19ff326a561c4bd31505d4', 'Andreas Bachmann', 2),
 	(4, 'damian.schneider@fablabwinti.ch', 'a57b647e8c19ff326a561c4bd31505d4', 'Damian Schneider', 2),
 	(5, 'patrick.gubelmann@fablabwinti.ch', 'a57b647e8c19ff326a561c4bd31505d4', 'Patrick Gubelmann', 2);

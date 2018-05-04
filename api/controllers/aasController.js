@@ -33,6 +33,7 @@ var menues_admin = Array(
 var menues_lm = Array(
     {id: 'home', text: 'Create Invoice', link: '/'},
     {id: 'invoices', text: 'Invoices', link: '/invoices'},    
+    {id: 'logs', text: 'Logs', link: '/logs'},    
     {id: 'tags', text: 'Tags', link: '/tags'},
     {id: 'rights', text: 'Rights', link: '/rights'},    
     {id: 'user', text: 'User', link: '/user_edit'},    
@@ -135,15 +136,15 @@ exports.logs = function(req, res) {
         res.redirect('/login');
         return;
     } else {
-        if (req.session.role > 1) {
-            //only for admins
-            res.redirect('/');
-            return;
-        }
         menues = setMenues(req);
     }
 
     if (req.query.task == 'del'){
+        if (req.session.role > 1) {
+            //only for admins
+            res.redirect('/logs');
+            return;
+        }
         if (req.query.lid){
             // delete the record with lid
             pool.getConnection(function(err,connection){
@@ -162,6 +163,9 @@ exports.logs = function(req, res) {
                 });
                 connection.release();
             });
+        } else {
+            // user is not allowed to delete logs
+            res.redirect('/logs');
         }
     } else {
         pool.getConnection(function(err,connection){
@@ -172,7 +176,7 @@ exports.logs = function(req, res) {
             //console.log('connected as id ' + connection.threadId);
 
             var logs = Array();
-            connection.query('SELECT l.lid, date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, t.name tag, e.name event, l.remarks, l.iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid ORDER BY l.timestamp', function(error, rows, fields) {
+            connection.query('SELECT l.lid, date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, t.name tag, e.name event, m.name machine, a.title article, l.remarks, l.iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN articles a ON a.aid=l.aid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid ORDER BY l.timestamp', function(error, rows, fields) {
                 if (error) {
                     res.send(error);
                 } else {
@@ -392,7 +396,7 @@ exports.invoice_create = function(req, res) {
             //console.log('connected as id ' + connection.threadId);
 
             var logs = Array();
-            connection.query('SELECT lid, timestamp, l.tid, t.name, l.mid, m.price, m.period, m.min_periods, eid FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN tags t ON l.tid=t.tid WHERE l.tid=1 AND ISNULL(iid) ORDER BY l.mid, l.timestamp', req.query.tid, function(error, rows, fields) {
+            connection.query('SELECT lid, timestamp, l.tid, t.name, l.mid, m.price, m.period, m.min_periods, l.aid, a.price a_price, a.min_periods a_min_periods, eid FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN articles a ON l.aid=a.aid LEFT JOIN tags t ON l.tid=t.tid WHERE l.tid=? AND ISNULL(iid) ORDER BY l.mid, l.aid, l.timestamp', req.query.tid, function(error, rows, fields) {
                 if (error) {
                     res.send(error);
                 } else {
@@ -408,50 +412,62 @@ exports.invoice_create = function(req, res) {
                                 iid = result.insertId;
                                 console.log('iid:' + iid);
 
-                                //--- Add all Machine Logs -------
                                 var lidStart, lidEnd, start, end, machine, article, price, period, min_perionds, minutes, periods, minPeriods, sum;
                                 var total = 0;
                                 for (var i=0; i<logs.length; i++){
-                                    if (logs[i].eid == 4){  //tag login
+                                    if (logs[i].eid == 8){  //product sale
                                         lidStart = logs[i].lid;
-                                        start = logs[i].timestamp;
-                                        machine = logs[i].mid;
                                         article = logs[i].aid;
-                                        price = logs[i].price;
-                                        console.log('Price:' + price);
-                                        period = logs[i].period;
-                                        minPeriods = logs[i].min_periods;
-                                    }
-                                    i++;
-                                    if (machine == logs[i].mid) {
-                                        //still the same machine
-                                        if (logs[i].eid == 5){  //tag logout
-                                            lidEnd = logs[i].lid;
-                                            end = logs[i].timestamp;
-                                            minutes = (end - start) / 1000/ 60;
-                                            periods = Math.ceil(minutes / period);
-                                            if (periods < minPeriods) periods = minPeriods;
-                                            console.log('Periods:' + periods);
-                                            sum = periods * price;
-                                            console.log('Sum:' + sum);
-                                            total = total + sum;
-
-                                            connection.query('UPDATE logs SET iid=? WHERE lid=? OR lid=?', [iid, lidStart, lidEnd], function(error, result) {
-                                                if (error) {
-                                                    res.send(error);
-                                                } else {
-                                                    console.log(result);
-                                                }            
-                                            });
-                                        } else {
-                                            //missing end
-                                        }
+                                        price = logs[i].a_price;
+                                        periods = logs[i].a_min_periods;
+                                        sum = periods * price;
+                                        console.log('Sum: ' + sum);
+                                        total = total + sum;
+                                        console.log('Total: ' + total);
+                                        connection.query('UPDATE logs SET iid=? WHERE lid=?', [iid, lidStart], function(error, result) {
+                                            if (error) {
+                                                res.send(error);
+                                            } else {
+                                                //console.log(result);
+                                            }            
+                                        });
                                     } else {
-                                        //missing end
+                                        if (logs[i].eid == 4){  //tag login
+                                            lidStart = logs[i].lid;
+                                            start = logs[i].timestamp;
+                                            machine = logs[i].mid;
+                                            price = logs[i].price;
+                                            period = logs[i].period;
+                                            minPeriods = logs[i].min_periods;
+                                            i++;
+                                            if (machine == logs[i].mid) {
+                                                //still the same machine
+                                                if (logs[i].eid == 5){  //tag logout
+                                                    lidEnd = logs[i].lid;
+                                                    end = logs[i].timestamp;
+                                                    minutes = (end - start) / 1000/ 60;
+                                                    periods = Math.ceil(minutes / period);
+                                                    if (periods < minPeriods) periods = minPeriods;
+                                                    sum = periods * price;
+                                                    total = total + sum;
+                                                    connection.query('UPDATE logs SET iid=? WHERE lid=? OR lid=?', [iid, lidStart, lidEnd], function(error, result) {
+                                                        if (error) {
+                                                            res.send(error);
+                                                        } else {
+                                                            //console.log(result);
+                                                        }            
+                                                    });
+                                                } else {
+                                                    //missing end
+                                                    i--;
+                                                }
+                                            } else {
+                                                //missing end
+                                                i--;
+                                            }
+                                        }
                                     }
                                 }
-                                
-                                
                                 
                                 console.log('Total:' + total);
                                 console.log('IID:' + iid);
@@ -1217,7 +1233,7 @@ exports.user_edit = function(req, res) {
                         res.send(error);
                     } else {
                         user = rows[0];
-                        res.render('user_edit', {title: 'FabLab Access Auth', message: 'Edit User', menues: menues, user: user});
+                        res.render('user_edit', {title: 'FabLab Access Auth', message: 'Edit User', menues: menues, user: user, role: req.session.role});
                     }            
                 });
             });
@@ -1230,7 +1246,7 @@ exports.user_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE users SET username=?' + (req.body.password ? ', password_hash=MD5("' + salt + mysql.escape(req.body.password) + '")' : '') + ', name=?, role=? WHERE uid=?', [req.body.username, req.body.name, req.body.role, req.query.uid], function(error, result) {
+                connection.query('UPDATE users SET username=?' + (req.body.password ? ', password_hash=MD5("' + salt + req.body.password + '")' : '') + ', name=?, role=? WHERE uid=?', [req.body.username, req.body.name, req.body.role, req.query.uid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -1254,7 +1270,7 @@ exports.user_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT users SET username=?, password_hash=MD5("' + salt + mysql.escape(req.body.password) + '"), name=?, role=?', [req.body.username, req.body.name, req.body.role], function(error, result) {
+                connection.query('INSERT users SET username=?, password_hash=MD5("' + salt + req.body.password + '"), name=?, role=?', [req.body.username, req.body.name, req.body.role], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -1281,7 +1297,8 @@ exports.login = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('SELECT uid, role FROM users WHERE username=? AND password_hash=MD5("' + salt + req.body.password + '")', req.body.username, function(error, rows, fields) {
+//                connection.query('SELECT uid, role FROM users WHERE username=? AND password_hash=MD5("' + salt + req.body.password + '")', req.body.username, function(error, rows, fields) {
+                connection.query('SELECT uid, role FROM users WHERE username=? AND password_hash=MD5(?)', [req.body.username, salt+req.body.password], function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -1904,3 +1921,28 @@ exports.get_timestamp = function(req, res) {
         });
     });
 };
+
+
+function getUserRole(uid) {
+    pool.getConnection(function(err,connection){
+        if (err) {
+          res.json({"code" : 100, "status" : "Error in connection database"});
+          return;
+        }  
+        //console.log('connected as id ' + connection.threadId);
+        
+        connection.query('SELECT role FROM users WHERE uid=?', uid, function(error, rows, fields) {
+            connection.release();
+            if (error) {
+                res.send(error);
+            } else {
+                return(rows[0].role);
+            }            
+        });
+
+        connection.on('error', function(err) {      
+            res.json({"code" : 100, "status" : "Error in connection database"});
+            return;    
+        });
+    });
+}
