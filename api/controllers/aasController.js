@@ -79,7 +79,7 @@ exports.tag_summary = function(req, res) {
                 } else {
                     if (rows[0]) {
                         tag = rows[0];
-                        connection.query('SELECT date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN events e ON l.eid=e.eid WHERE tid=? AND ISNULL(iid) ORDER BY l.timestamp', tag.tid, function(error, rows, fields) {
+                        connection.query('SELECT date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, a.description article, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN articles a ON l.aid=a.aid LEFT JOIN events e ON l.eid=e.eid WHERE tid=? AND ISNULL(iid) ORDER BY l.timestamp', tag.tid, function(error, rows, fields) {
                             if (error) {
                                 res.send(error);
                             } else {
@@ -234,7 +234,7 @@ exports.machines = function(req, res) {
         //console.log('connected as id ' + connection.threadId);
 
         var machines = Array();
-        connection.query('SELECT * FROM machines', function(error, rows, fields) {
+        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
@@ -407,13 +407,16 @@ exports.invoice_create = function(req, res) {
                                 //res.send(result);
                                 iid = result.insertId;
                                 console.log('iid:' + iid);
-                                var lidStart, lidEnd, start, end, machine, price, period, min_perionds, minutes, periods, minPeriods, sum;
+
+                                //--- Add all Machine Logs -------
+                                var lidStart, lidEnd, start, end, machine, article, price, period, min_perionds, minutes, periods, minPeriods, sum;
                                 var total = 0;
                                 for (var i=0; i<logs.length; i++){
                                     if (logs[i].eid == 4){  //tag login
                                         lidStart = logs[i].lid;
                                         start = logs[i].timestamp;
                                         machine = logs[i].mid;
+                                        article = logs[i].aid;
                                         price = logs[i].price;
                                         console.log('Price:' + price);
                                         period = logs[i].period;
@@ -447,6 +450,9 @@ exports.invoice_create = function(req, res) {
                                         //missing end
                                     }
                                 }
+                                
+                                
+                                
                                 console.log('Total:' + total);
                                 console.log('IID:' + iid);
                                 connection.query('UPDATE invoices SET total=? WHERE iid=?', [total, iid], function(error, result) {
@@ -947,8 +953,25 @@ exports.article_edit = function(req, res) {
     } else {
         if (!req.body.title){
             // no aid -> load empfty form to add new article
-            var article;
-            res.render('article_edit', {title: 'FabLab Access Auth', message: 'Add Article', menues: menues, article: article});
+            pool.getConnection(function(err,connection){
+                if (err) {
+                    res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                    return;
+                }  
+                //console.log('connected as id ' + connection.threadId);
+
+                var article;
+                var units = Array();
+                connection.query('SELECT * FROM price_units', function(error, rows, fields) {
+                    if (error) {
+                        res.send(error);
+                    } else {
+                        units = rows;
+                        res.render('article_edit', {title: 'FabLab Access Auth', message: 'Add Article', menues: menues, article: article, units: units});
+                    }
+                });
+                connection.release();
+            });
         } else {
             // insert data and redirect to list
             pool.getConnection(function(err,connection){

@@ -10,7 +10,7 @@ block content
             th Title
             th Text
             th Price
-            th Units
+            th /Unit
             th
                 a(href='/article_edit')= 'Add'
             each article in articles
@@ -19,7 +19,7 @@ block content
                     td #{article.title}
                     td #{article.description}
                     td(style='text-align:right;')= parseFloat(Math.round(article.price * 100) / 100).toFixed(2)
-                    td #{article.units}
+                    td /#{article.units}
                     td
                         a(href='/article_edit?aid=' + article.aid)= 'Edit'
                     

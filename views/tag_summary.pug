@@ -20,12 +20,14 @@ block content
             table
                 th Timestamp
                 th Machine
+                th Article
                 th Event
                 th Remarks
                 each log in logs
                     tr
                         td #{log.timestamp}
                         td #{log.machine} 
+                        td #{log.article} 
                         td #{log.event}
                         td #{log.remarks}
                         
