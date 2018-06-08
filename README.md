@@ -12,6 +12,6 @@ You need to install MySQSL and NodeJS V6 to run this server.
 - Get Node JS V6 from https://nodejs.org/en/download/
 - Install it
 - Git clone the **access_auth_server** repository into a folder (or download zip and unpack)
-- Open **api/controllers/aasController.js* and enter your password for the DB (on line 7)
+- Open **config.js* and adjust your password for the DB on line 11
 - Save the file
 - Run **node server.js**

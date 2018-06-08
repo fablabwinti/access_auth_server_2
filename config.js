@@ -5,7 +5,8 @@ config.wsPort = 3001;
 config.serverVersion = '0.1.0';
 config.apiVersion = '0.1.0';
 
-config.dbHost = 'localhost';
+config.dbHost = '192.168.14.21';
+config.dbPort = '3307';
 config.dbName = 'flauth';
 config.dbUser = 'flauth';
 config.dbPass = 'FabLab';

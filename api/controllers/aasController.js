@@ -7,6 +7,7 @@ var pool = mysql.createPool({
     database : config.dbName,   //'flauth',
     user     : config.dbUser,   //'flauth',
     password : config.dbPass,   //'FabLab',
+    port     : config.dbPort,   //'3307',
     debug    : false,
     checkExpirationInterval: 900000, // = 15 Min. How frequently expired sessions will be cleared; milliseconds:
     expiration: 1800000,             // = 30 Min. The maximum age of a valid session; milliseconds:
@@ -868,7 +869,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE machines SET name=?, config=? WHERE mid=?', [req.body.name, req.body.config, req.query.mid], function(error, result) {
+                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.query.mid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -892,7 +893,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT machines SET name=?, config=?', [req.body.name, req.body.config], function(error, result) {
+                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -1292,7 +1293,7 @@ exports.login = function(req, res) {
         if (req.body.password){
             pool.getConnection(function(err,connection){
                 if (err) {
-                  res.json({"code" : 100, "status" : "Error in connection database"});
+                  res.json({"code" : 100, "status" : err}); //."Error connecting database (login 1)"
                   return;
                 }  
                 //console.log('connected as id ' + connection.threadId);
@@ -1324,7 +1325,7 @@ exports.login = function(req, res) {
                 });
 
                 connection.on('error', function(err) {      
-                    res.json({"code" : 100, "status" : "Error in connection database"});
+                    res.json({"code" : 100, "status" : "Error connecting database (login 2)"});
                     return;    
                 });
             });

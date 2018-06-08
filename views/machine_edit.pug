@@ -18,6 +18,9 @@ block content
             label(for='period') Period:
             input#period.form-control(type='text', name='period' value=(undefined===machine ? '' : machine.period))
         div.form-group
+            label(for='units') Units:
+            input#uid.form-control(type='text', name='uid' value=(undefined===machine ? '' : machine.uid))
+        div.form-group
             label(for='min_periods') Min. Periods:
             input#min_periods.form-control(type='text', name='min_periods' value=(undefined===machine ? '' : machine.min_periods))
         div.form-group
