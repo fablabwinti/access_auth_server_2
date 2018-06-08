@@ -1,12 +1,18 @@
 'use strict';
 const config = require('./config');
-var express = require('express');
+const express = require('express');
+const https = require('https');
+const fs = require('fs');
+const options = {
+  key: fs.readFileSync("keys/privkey.pem"),
+  cert: fs.readFileSync("keys/cert.pem")
+};
+const mysql = require('mysql');
+//const model = require('./api/models/aasModel');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const helmet = require('helmet');
 var app = express();
-var mysql = require('mysql');
-//var model = require('./api/models/aasModel');
-var bodyParser = require('body-parser');
-var session = require('express-session');
-var helmet = require('helmet');
 
 // init helmet (header security)
 app.use(helmet());
@@ -49,6 +55,9 @@ app.set('views', './views');
 var routes = require('./api/routes/aasRoutes');
 routes(app);
 
-app.listen(config.httpPort);
+//var server = http.createServer(app);
+var server = https.createServer(options, app);
+server.listen(config.httpsPort);
+//app.listen(config.httpsPort);
 
-console.log('AAS RESTful API server started on: ' + config.httpPort);
+console.log('AAS RESTful API server started on: ' + config.httpPort + ' (HTTPS on ' + config.httpsPort + ')');

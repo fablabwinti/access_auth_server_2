@@ -1,6 +1,7 @@
 var config = {};
 
 config.httpPort = 3000;
+config.httpsPort = 3003;
 config.wsPort = 3001;
 config.serverVersion = '0.1.0';
 config.apiVersion = '0.1.0';

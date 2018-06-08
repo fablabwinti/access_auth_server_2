@@ -43,6 +43,7 @@ Icon?
 ehthumbs.db
 Thumbs.db
 *~
+keys
 node_modules
 
 # Local settings #
