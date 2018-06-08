@@ -641,7 +641,8 @@ exports.log_edit = function(req, res) {
                 var machines = Array();
                 var tags = Array();
                 var events = Array();
-                connection.query('SELECT lid, date_format(timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, tid, mid, eid, remarks FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
+                var articles = Array();
+                connection.query('SELECT lid, date_format(timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, tid, eid, mid, aid, remarks FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -661,7 +662,14 @@ exports.log_edit = function(req, res) {
                                                 res.send(error);
                                             } else {
                                                 events = rows;
-                                                res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Edit', menues: menues, machines: machines, tags: tags, events: events, log: log});
+                                                connection.query('SELECT * FROM articles', function(error, rows, fields) {
+                                                    if (error) {
+                                                        res.send(error);
+                                                    } else {
+                                                        articles = rows;
+                                                        res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Edit', menues: menues, machines: machines, tags: tags, events: events, articles: articles, log: log});
+                                                    }            
+                                                });
                                             }            
                                         });
                                     }            
@@ -856,7 +864,15 @@ exports.machine_edit = function(req, res) {
                         res.send(error);
                     } else {
                         machine = rows[0];
-                        res.render('machine_edit', {title: 'FabLab Access Auth', message: 'Edit Machine', menues: menues, machine: machine});
+                        var units = Array();
+                        connection.query('SELECT * FROM price_units', function(error, rows, fields) {
+                            if (error) {
+                                res.send(error);
+                            } else {
+                                units = rows;
+                                res.render('machine_edit', {title: 'FabLab Access Auth', message: 'Edit Machine', menues: menues, machine: machine, units: units});
+                            }
+                        });
                     }            
                 });
             });
