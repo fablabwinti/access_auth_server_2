@@ -27,8 +27,13 @@
 *.log
 logfile.txt
 
+# Backup files #
+################
+*.bak
+
 # OS generated files #
 ######################
+.credentials
 .DS_Store
 .DS_Store?
 ._*
@@ -38,8 +43,10 @@ Icon?
 ehthumbs.db
 Thumbs.db
 *~
+keys
 node_modules
 
 # Local settings #
 ##################
 .env
+client-secret.json
