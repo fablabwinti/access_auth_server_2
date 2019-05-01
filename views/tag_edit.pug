@@ -1,0 +1,15 @@
+//- tag_edit.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/tag_edit' + (undefined===tag ? '' : '?tid=' + tag.tid))
+        div.form-group
+            label(for='name') Name:
+            input#name.form-control(type='text', name='name' autofocus value=(undefined===tag ? '' : tag.name))
+        div.form-group
+            label(for='uid') UID:
+            input#uid.form-control(type='text', name='uid' value=(undefined===tag ? '' : tag.uid))
+        div.form-group
+            button.btn.btn-primary(type='submit') Save

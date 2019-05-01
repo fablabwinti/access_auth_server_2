@@ -24,6 +24,9 @@ module.exports = function(app) {
     app.route('/invoice_payed')
     .get(aas.invoice_payed)
 
+    app.route('/invoice_delete')
+    .get(aas.invoice_delete)
+
     app.route('/logs')
     .get(aas.logs);
     

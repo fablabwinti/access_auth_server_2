@@ -1,0 +1,20 @@
+//- tags.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th TID
+            th UID
+            th Name
+            th
+                a(href='/tag_edit')= 'Add'
+            each tag in tags
+                tr
+                    td #{tag.tid}
+                    td #{tag.uid} 
+                    td #{tag.name}
+                    td
+                        a(href='/tag_edit?tid=' + tag.tid)= 'Edit'

@@ -1,0 +1,48 @@
+//- tag_summary.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/tag_summary')
+        div.form-group
+            label(for='uid') Card ID:
+            input#tid.form-control(type='text', name='uid' autofocus onFocus='this.setSelectionRange(0, this.value.length)' value=(undefined===tag ? '' : tag.uid))
+            button.btn.btn-primary(class='behind' type='submit') Search
+
+        div.form-group
+            label(for='name') Name:
+            input#name.form-control(type='text', name='name' value=(undefined===tag ? '' : tag.name) disabled="disabled")
+
+
+    form(method='GET' action='/invoice_create' + (undefined===tag ? '' : '?tid=' + tag.tid))
+        div.form-group
+            table
+                th Log ID
+                th Timestamp
+                th Machine
+                th Article
+                th Event
+                th Remarks
+                th 
+                each log in logs
+                    tr
+                        td #{log.lid}
+                        td #{log.timestamp}
+                        td #{log.machine} 
+                        td #{log.article} 
+                        td #{log.event}
+                        td #{log.remarks}
+                        td
+                            a(href='/log_edit?lid=' + log.lid)= 'Edit'
+                            //delete only when user role is 1
+                            //a(href='/logs?task=del&lid=' + log.lid)= 'Delete'
+                        
+            -if (logs.length>0)
+                //button.btn.btn-primary(type='submit') Invoice
+                -if (undefined===tag)
+                    span
+                -else
+                    a.btn.btn-primary(href='/invoice_create?tid=' + tag.tid)= 'Create Invoice'
+
+

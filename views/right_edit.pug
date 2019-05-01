@@ -1,0 +1,33 @@
+//- right_edit.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/right_edit' + (undefined===right ? '' : '?rid=' + right.rid))
+        div.form-group
+            label(for='tag') Tag:
+            select#tag.form-control(name='tid' autofocus)
+                option(value=0) bitte auswählen
+                each tag in tags
+                    -if (undefined===right)
+                        option(value=tag.tid) #{tag.name}
+                    -else
+                        option(value=tag.tid selected=(tag.tid==right.tid)) #{tag.name}
+        div.form-group
+            label(for='machines') Machine:
+            select#machines.form-control(name='mid')
+                option(value=0) bitte auswählen
+                each machine in machines
+                    -if (undefined===right)
+                        option(value=machine.mid) #{machine.name}
+                    -else
+                        option(value=machine.mid selected=(machine.mid==right.mid)) #{machine.name}
+        div.form-group
+            label(for='start') Start:
+            input#start.form-control(type='text', name='start' value=(undefined===right ? '' : right.start))
+        div.form-group
+            label(for='end') End:
+            input#end.form-control(type='text', name='end' value=(undefined===right ? '' : right.end))
+        div.form-group
+            button.btn.btn-primary(type='submit') Save

@@ -1,0 +1,51 @@
+//- log_edit.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/log_edit' + (undefined===log ? '' : '?lid=' + log.lid))
+        div.form-group
+            label(for='timestamp') Timestamp:
+            input#timestamp.form-control(type='text', name='timestamp' autofocus value=(undefined===log ? '' : log.timestamp))
+        div.form-group
+            label(for='tag') Tag:
+            select#tag.form-control(name='tid')
+                option(value=0) bitte auswählen
+                each tag in tags
+                    -if (undefined===log)
+                        option(value=tag.tid) #{tag.name}
+                    -else
+                        option(value=tag.tid selected=(tag.tid==log.tid)) #{tag.name}
+        div.form-group
+            label(for='event') Event:
+            select#event.form-control(name='eid')
+                option(value=0) bitte auswählen
+                each event in events
+                    -if (undefined===log)
+                        option(value=event.eid) #{event.name}
+                    -else
+                        option(value=event.eid selected=(event.eid==log.eid)) #{event.name}
+        div.form-group
+            label(for='machine') Machine:
+            select#machine.form-control(name='mid')
+                option(value=0) bitte auswählen
+                each machine in machines
+                    -if (undefined===log)
+                        option(value=machine.mid) #{machine.name}
+                    -else
+                        option(value=machine.mid selected=(machine.mid==log.mid)) #{machine.name}
+        div.form-group
+            label(for='article') Article:
+            select#article.form-control(name='aid')
+                option(value=0) bitte auswählen
+                each article in articles
+                    -if (undefined===log)
+                        option(value=article.aid) #{article.title}
+                    -else
+                        option(value=article.aid selected=(article.aid==log.aid)) #{article.title}
+        div.form-group
+            label(for='remarks') Remarks:
+            input#remarks.form-control(type='text', name='remarks' value=(undefined===remarks ? '' : log.remarks))
+        div.form-group
+            button.btn.btn-primary(type='submit') Save

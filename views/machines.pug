@@ -1,0 +1,29 @@
+//- machines.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th MID
+            th Name
+            th Config
+            th Price
+            th Period
+            th Units
+            th Min. Periods
+            th
+                a(href='/machine_edit')= 'Add'
+            each machine in machines
+                tr
+                    td #{machine.mid}
+                    td #{machine.name}
+                    td #{machine.config}
+                    td #{machine.price}
+                    td #{machine.period}
+                    td #{machine.units}
+                    td #{machine.min_periods}
+                    td
+                        a(href='/machine_edit?mid=' + machine.mid)= 'Edit'
+                    

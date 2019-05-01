@@ -1,0 +1,18 @@
+//- events.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th EID
+            th Name
+            th
+                a(href='/event_edit')= 'Add'
+            each event in events
+                tr
+                    td #{event.eid}
+                    td #{event.name} 
+                    td
+                        a(href='/event_edit?eid=' + event.eid)= 'Edit'

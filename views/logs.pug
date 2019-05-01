@@ -1,0 +1,32 @@
+//- logs.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    div.form-group
+        table
+            th LID
+            th Timestamp
+            th Tag
+            th Event
+            th Machine
+            th Article
+            th Remarks
+            th Invoice
+            th
+                a(href='/log_edit')= 'Add'
+            each log in logs
+                tr
+                    td #{log.lid}
+                    td #{log.timestamp} 
+                    td #{log.tag}
+                    td #{log.event}
+                    td #{log.machine}
+                    td #{log.article}
+                    td #{log.remarks}
+                    td #{log.iid}
+                    td
+                        a(href='/log_edit?lid=' + log.lid)= 'Edit'
+                        //delete only when user role is 1
+                        a(href='/logs?task=del&lid=' + log.lid)= 'Delete'

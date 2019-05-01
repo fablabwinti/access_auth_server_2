@@ -81,7 +81,7 @@ exports.tag_summary = function(req, res) {
                 } else {
                     if (rows[0]) {
                         tag = rows[0];
-                        connection.query('SELECT date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, m.name machine, a.description article, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN articles a ON l.aid=a.aid LEFT JOIN events e ON l.eid=e.eid WHERE tid=? AND ISNULL(iid) ORDER BY l.timestamp', tag.tid, function(error, rows, fields) {
+                        connection.query('SELECT l.lid lid, date_format(l.timestamp, \'%Y-%m-%d %h:%i:%s\') timestamp, m.name machine, a.description article, e.name event, l.remarks FROM logs l LEFT JOIN machines m ON l.mid=m.mid LEFT JOIN articles a ON l.aid=a.aid LEFT JOIN events e ON l.eid=e.eid WHERE tid=? AND ISNULL(iid) ORDER BY l.lid', tag.tid, function(error, rows, fields) {
                             if (error) {
                                 res.send(error);
                             } else {
@@ -120,7 +120,7 @@ exports.invoices = function(req, res) {
         //console.log('connected as id ' + connection.threadId);
 
         var invoices = Array();
-        connection.query('SELECT iid, tid, i.name, total, date_format(createdAt, \'%d.%m.%Y %h:%i:%s\') createdAt, date_format(payedAt, \'%d.%m.%Y %h:%i:%s\') payedAt, u.name collectedBy FROM invoices i LEFT JOIN users u ON u.uid=i.uid', function(error, rows, fields) {
+        connection.query('SELECT iid, tid, i.name, total, date_format(createdAt, \'%Y-%m-%d %h:%i:%s\') createdAt, date_format(payedAt, \'%Y-%m-%d %h:%i:%s\') payedAt, u.name collectedBy FROM invoices i LEFT JOIN users u ON u.uid=i.uid', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
@@ -177,7 +177,7 @@ exports.logs = function(req, res) {
             //console.log('connected as id ' + connection.threadId);
 
             var logs = Array();
-            connection.query('SELECT l.lid, date_format(l.timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, t.name tag, e.name event, m.name machine, a.title article, l.remarks, l.iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN articles a ON a.aid=l.aid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid ORDER BY l.timestamp', function(error, rows, fields) {
+            connection.query('SELECT l.lid lid, date_format(l.timestamp, \'%Y-%m-%d %h:%i:%s.000\') timestamp, t.name tag, e.name event, m.name machine, a.title article, l.remarks remarks, l.iid iid FROM logs l LEFT JOIN machines m ON m.mid=l.mid LEFT JOIN articles a ON a.aid=l.aid LEFT JOIN tags t ON t.tid=l.tid LEFT JOIN events e ON e.eid=l.eid ORDER BY l.lid', function(error, rows, fields) {
                 if (error) {
                     res.send(error);
                 } else {
@@ -333,7 +333,7 @@ exports.rights = function(req, res) {
         }  
         //console.log('connected as id ' + connection.threadId);
         var rights = Array();
-        connection.query('SELECT r.rid, t.name tag, m.name machine, date_format(r.start, \'%d.%m.%Y\') start, date_format(r.end, \'%d.%m.%Y\') end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
+        connection.query('SELECT r.rid, t.name tag, m.name machine, date_format(r.start, \'%Y-%m-%d\') start, date_format(r.end, \'%Y-%m-%d\') end FROM rights r LEFT JOIN tags t ON t.tid=r.tid LEFT JOIN machines m ON m.mid=r.mid', function(error, rows, fields) {
         //connection.query('SELECT * FROM rights', function(error, rows, fields) {
             if (error) {
                 res.send(error);
@@ -401,8 +401,8 @@ exports.invoice_create = function(req, res) {
                 if (error) {
                     res.send(error);
                 } else {
-                    logs = rows;
-                    if (logs.length > 1) {
+					if (rows !== undefined && rows.length >= 1) {
+						logs = rows;
                         //Create new invoice
                         var iid;
                         connection.query('INSERT invoices SET tid=?, name=?, uid=?', [req.query.tid, logs[0].name, req.session.uid], function(error, result) {
@@ -416,7 +416,7 @@ exports.invoice_create = function(req, res) {
                                 var lidStart, lidEnd, start, end, machine, article, price, period, min_perionds, minutes, periods, minPeriods, sum;
                                 var total = 0;
                                 for (var i=0; i<logs.length; i++){
-                                    if (logs[i].eid == 8){  //product sale
+                                    if (logs[i].eid == 8){  //is product sale
                                         lidStart = logs[i].lid;
                                         article = logs[i].aid;
                                         price = logs[i].a_price;
@@ -433,39 +433,45 @@ exports.invoice_create = function(req, res) {
                                             }            
                                         });
                                     } else {
-                                        if (logs[i].eid == 4){  //tag login
+                                        if (logs[i].eid == 4){  //is tag login
                                             lidStart = logs[i].lid;
                                             start = logs[i].timestamp;
                                             machine = logs[i].mid;
                                             price = logs[i].price;
                                             period = logs[i].period;
                                             minPeriods = logs[i].min_periods;
-                                            i++;
-                                            if (machine == logs[i].mid) {
-                                                //still the same machine
-                                                if (logs[i].eid == 5){  //tag logout
-                                                    lidEnd = logs[i].lid;
-                                                    end = logs[i].timestamp;
-                                                    minutes = (end - start) / 1000/ 60;
-                                                    periods = Math.ceil(minutes / period);
-                                                    if (periods < minPeriods) periods = minPeriods;
-                                                    sum = periods * price;
-                                                    total = total + sum;
-                                                    connection.query('UPDATE logs SET iid=? WHERE lid=? OR lid=?', [iid, lidStart, lidEnd], function(error, result) {
-                                                        if (error) {
-                                                            res.send(error);
-                                                        } else {
-                                                            //console.log(result);
-                                                        }            
-                                                    });
-                                                } else {
-                                                    //missing end
-                                                    i--;
-                                                }
-                                            } else {
-                                                //missing end
-                                                i--;
-                                            }
+											// check next log
+											i++; 
+											if (logs[i] !== undefined){
+												if (logs[i].mid !== undefined && machine == logs[i].mid) {
+													//still the same machine
+													if (logs[i].eid == 5){  //is tag logout
+														lidEnd = logs[i].lid;
+														end = logs[i].timestamp;
+														minutes = (end - start) / 1000/ 60;
+														periods = Math.ceil(minutes / period);
+														if (periods < minPeriods) periods = minPeriods;
+														sum = periods * price;
+														total = total + sum;
+														connection.query('UPDATE logs SET iid=? WHERE lid=? OR lid=?', [iid, lidStart, lidEnd], function(error, result) {
+															if (error) {
+																res.send(error);
+															} else {
+																//console.log(result);
+															}            
+														});
+													} else {
+														//is not a logout!
+														i--;
+													}
+												} else {
+													//different machine, missing end
+													i--;
+												}
+											} else {
+												//no machine log - drop entry
+												i--;
+											}
                                         }
                                     }
                                 }
@@ -512,7 +518,7 @@ exports.invoice_edit = function(req, res) {
                 //console.log('connected as id ' + connection.threadId);
 
                 var invoice;
-                connection.query('SELECT iid, date_format(createdAt, \'%d.%m.%Y %h:%i:%s\') createdAt, tid, name, total, date_format(payedAt, \'%d.%m.%Y %h:%i:%s\') payedAt, uid FROM invoices WHERE iid=?', req.query.iid, function(error, rows, fields) {
+                connection.query('SELECT iid, date_format(createdAt, \'%Y-%m-%d %h:%i:%s\') createdAt, tid, name, total, date_format(payedAt, \'%Y-%m-%d %h:%i:%s\') payedAt, uid FROM invoices WHERE iid=?', req.query.iid, function(error, rows, fields) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -614,6 +620,46 @@ exports.invoice_payed = function(req, res) {
     }
 };
 
+exports.invoice_delete = function(req, res) {
+    if (!req.session.uid) {
+        res.redirect('/login');
+        return;
+    } else {
+        menues = setMenues(req);
+    }
+
+    if (req.query.iid){
+        // update data and redirect to list
+        pool.getConnection(function(err,connection){
+            if (err) {
+                res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
+                return;
+            }  
+            //console.log('connected as id ' + connection.threadId);
+
+            var invoice;
+            //first, unlink all logs of this invoice
+            connection.query('UPDATE logs SET iid=null WHERE iid=?', [req.query.iid], function(error, rows, fields) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    //second, delete the invoice
+                    connection.query('DELETE FROM invoices WHERE iid=?', [req.query.iid], function(error, rows, fields) {
+                        if (error) {
+                            res.send(error);
+                        } else {
+                            res.redirect('/invoices');
+                        }            
+                    });
+                }            
+            });
+            connection.release();
+        });
+    } else {
+        res.redirect('/invoices');
+    }
+};
+
 exports.log_edit = function(req, res) {
     if (!req.session.uid) {
         res.redirect('/login');
@@ -642,7 +688,7 @@ exports.log_edit = function(req, res) {
                 var tags = Array();
                 var events = Array();
                 var articles = Array();
-                connection.query('SELECT lid, date_format(timestamp, \'%d.%m.%Y %h:%i:%s\') timestamp, tid, eid, mid, aid, remarks FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
+                connection.query('SELECT lid, date_format(timestamp, \'%Y-%m-d %h:%i:%s\') timestamp, tid, eid, mid, aid, remarks FROM logs WHERE lid=?', req.query.lid, function(error, rows, fields) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -700,8 +746,8 @@ exports.log_edit = function(req, res) {
             });
         }
     } else {
+        // no lid -> load empfty form to add new log
         if (!req.body.timestamp){
-            // no lid -> load empfty form to add new log
             pool.getConnection(function(err,connection){
                 if (err) {
                     res.render('error', {title: 'FabLab Access Auth', message: 'Error connecting database', menues: menues});
@@ -713,6 +759,7 @@ exports.log_edit = function(req, res) {
                 var machines = Array();
                 var tags = Array();
                 var events = Array();
+                var articles = Array();
                 connection.query('SELECT mid, name FROM machines', function(error, rows, fields) {
                     if (error) {
                         res.send(error);
@@ -728,7 +775,14 @@ exports.log_edit = function(req, res) {
                                         res.send(error);
                                     } else {
                                         events = rows;
-                                        res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Log', menues: menues, machines: machines, tags: tags, events: events, log: log});
+                                        connection.query('SELECT * FROM articles', function(error, rows, fields) {
+                                            if (error) {
+                                                res.send(error);
+                                            } else {
+                                                articles = rows;
+                                                res.render('log_edit', {title: 'FabLab Access Auth', message: 'Add Edit', menues: menues, machines: machines, tags: tags, events: events, articles: articles, log: log});
+                                            }            
+                                        });
                                     }            
                                 });
                             }            
@@ -1844,27 +1898,37 @@ exports.create_a_log = function(req, res) {
             //-> check if previous event for same machine/tag was tag logout
             connection.query('SELECT * FROM logs WHERE mid=? AND tid=? ORDER BY lid DESC LIMIT 1', [req.body.mid, req.body.tid], function(error, results, fields) {
                 if (error) throw error;
-                if (results[0].eid == 4){ //previous was logout?
-                    //everthing is fine
-                } else {
-                    //insert tag logout before new login
-                    connection.query('INSERT INTO logs SET timestamp=?, mid=?, tid=?, eid=4, remarks=?', [req.body.timestamp-1, req.body.mid, req.body.tid, 'Auto logout before new login!'], function(error, results, fields) {
-                        connection.release();
-                        if (error) throw error;
-                    });
+                if (results !== undefined && results.length > 0){
+					if (results[0].eid == 4){ //previous was logout?
+						//everthing is fine
+					} else {
+						//insert tag logout before new login
+						connection.query('INSERT INTO logs SET timestamp=?, mid=?, tid=?, eid=4, remarks=?', [req.body.timestamp-1, req.body.mid, req.body.tid, 'Auto logout before new login!'], function(error, results, fields) {
+							connection.release();
+							if (error) throw error;
+						});
+					}
+				} else {
+					//no last log entry found -> ignore event
+					return;
                 }
             });
         }
         
         if (req.body.eid == 4){     //event is tag logout
-            //-> check if previous event for same machine/tag was tag login
+            //-> check if previous event for same machine/tag was a login
             connection.query('SELECT * FROM logs WHERE mid=? AND tid=? ORDER BY lid DESC LIMIT 1', [req.body.mid, req.body.tid], function(error, results, fields) {
                 if (error) throw error;
-                if (results[0].eid == 3){
-                    //everithing is fine
-                } else {
-                    //ignore event
-                    return;
+                if (results !== undefined && results.length > 0){
+					if (results[0].eid == 3){
+						//ok, last log was a login
+					} else {
+						//last was not a login -> ignore logout
+						return;
+					}
+				} else {
+					//no last log entry found -> ignore event
+					return;
                 }
             });
         }

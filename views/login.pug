@@ -1,0 +1,15 @@
+//- login.pug
+extends layout
+
+block content
+    h1 #{message}
+
+    form(method='POST' action='/login')
+        div.form-group
+            label(for='username') Username (email):
+            input#username.form-control(type='text', name='username' autofocus)
+        div.form-group
+            label(for='password') Password:
+            input#password.form-control(type='password', name='password')
+        div.form-group
+            button.btn.btn-primary(type='submit') Login
