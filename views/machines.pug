@@ -13,6 +13,8 @@ block content
             th Period
             th Units
             th Min. Periods
+            th Nachlauf
+            th Watchdog
             th
                 a(href='/machine_edit')= 'Add'
             each machine in machines
@@ -24,6 +26,8 @@ block content
                     td #{machine.period}
                     td #{machine.units}
                     td #{machine.min_periods}
+                    td #{machine.nachlauf}
+                    td #{machine.watchdog}
                     td
                         a(href='/machine_edit?mid=' + machine.mid)= 'Edit'
                     

@@ -1,0 +1,8 @@
+Zum Starten und Stoppen des Access Auth Servers gibt es unter /usr/local/etc/rc.d/ das script access_auth_server.sh.
+
+Start:		sudo ./access_auth_server.sh start
+Stop:		sudo ./access_auth_server.sh stop
+Restart:	sudo ./access_auth_server.sh restart
+Status:		sudo ./access_auth_server.sh status
+
+Dieses Script sorgt auch dafür, dass der Server beim Booten gestartet wird.

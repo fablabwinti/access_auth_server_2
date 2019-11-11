@@ -239,7 +239,7 @@ exports.machines = function(req, res) {
         //console.log('connected as id ' + connection.threadId);
 
         var machines = Array();
-        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function(error, rows, fields) {
+        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods, nachlauf, watchdog FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
@@ -939,7 +939,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.query.mid], function(error, result) {
+                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, nachlauf=?, watchdog=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.nachlauf, req.body.watchdog, req.query.mid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -963,7 +963,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods], function(error, result) {
+                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, nachlauf=?, watchdog=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.nachlauf, req.body.watchdog], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
