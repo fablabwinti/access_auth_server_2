@@ -239,7 +239,7 @@ exports.machines = function(req, res) {
         //console.log('connected as id ' + connection.threadId);
 
         var machines = Array();
-        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods, nachlauf, watchdog FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function(error, rows, fields) {
+        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods, offdelay, watchdog FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function(error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
