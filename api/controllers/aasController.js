@@ -939,7 +939,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, nachlauf=?, watchdog=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.nachlauf, req.body.watchdog, req.query.mid], function(error, result) {
+                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, offdelay=?, watchdog=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.offdelay, req.body.watchdog, req.query.mid], function(error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -963,7 +963,7 @@ exports.machine_edit = function(req, res) {
                 }  
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, nachlauf=?, watchdog=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.nachlauf, req.body.watchdog], function(error, result) {
+                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, offdelay=?, watchdog=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.offdelay, req.body.watchdog], function(error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
