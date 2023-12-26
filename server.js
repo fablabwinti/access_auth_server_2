@@ -15,7 +15,13 @@ const helmet = require('helmet');
 var app = express();
 
 // init helmet (header security)
-app.use(helmet());
+// (but not HSTS when used on localhost as that will break all other non-HTTPS services on your machine)
+app.use(helmet({
+    hsts: {
+        maxAge: 864000,
+        setIf: function(req, res) { return !(req.headers.host && req.headers.host.includes('localhost')); }
+    }
+}));
 
 // init bodyParser
 app.use(bodyParser.urlencoded({ extended: true }));
