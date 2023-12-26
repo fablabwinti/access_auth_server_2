@@ -1629,7 +1629,7 @@ CREATE TABLE `machines` (
   `period` int(11) NOT NULL,
   `uid` int(11) NOT NULL,
   `min_periods` int(11) NOT NULL,
-  `nachlauf` int(11) NOT NULL DEFAULT 0,
+  `offdelay` int(11) NOT NULL DEFAULT 0,
   `watchdog` int(11) NOT NULL DEFAULT 15,
   `status` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -1638,7 +1638,7 @@ CREATE TABLE `machines` (
 -- Daten für Tabelle `machines`
 --
 
-INSERT INTO `machines` (`mid`, `name`, `config`, `price`, `period`, `uid`, `min_periods`, `nachlauf`, `watchdog`, `status`) VALUES
+INSERT INTO `machines` (`mid`, `name`, `config`, `price`, `period`, `uid`, `min_periods`, `offdelay`, `watchdog`, `status`) VALUES
 (1, 'Lasersaur', '', '6.00', 15, 2, 1, 0, 15, 0),
 (2, 'Laser klein', '', '1.00', 15, 2, 1, 0, 15, 0),
 (3, 'CNC-Fräse', '', '6.00', 15, 2, 1, 0, 15, 0),
