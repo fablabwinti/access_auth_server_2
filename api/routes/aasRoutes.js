@@ -15,17 +15,17 @@ module.exports = function(app) {
     .get(aas.invoices);
 
     app.route('/invoice_create')
-    .get(aas.invoice_create)
+    .get(aas.invoice_create);
     
     app.route('/invoice_edit')
     .get(aas.invoice_edit)
     .post(aas.invoice_edit);
 
     app.route('/invoice_payed')
-    .get(aas.invoice_payed)
+    .get(aas.invoice_payed);
 
     app.route('/invoice_delete')
-    .get(aas.invoice_delete)
+    .get(aas.invoice_delete);
 
     app.route('/logs')
     .get(aas.logs);
@@ -34,8 +34,9 @@ module.exports = function(app) {
     .get(aas.log_edit)
     .post(aas.log_edit);
 
-    app.route('/tags')
-    .get(aas.tags);
+    app.route('/tags_edit')
+    .get(aas.tags_edit)
+    .post(aas.tags_edit);
 
     app.route('/tag_edit')
     .get(aas.tag_edit)
@@ -82,6 +83,14 @@ module.exports = function(app) {
         
     app.route('/logout')
     .get(aas.logout);
+	
+    app.route('/labmgr')
+    .get(aas.labmgr)
+    .post(aas.queries);
+    
+    app.route('/labmgr_edit')
+    .get(aas.labmgr_edit)
+    .post(aas.queries);
 
     
     /*------------ API routes -------------*/
@@ -148,6 +157,6 @@ module.exports = function(app) {
         
     // timestamp
     app.route('/api/timestamp')
-    .get(aas.get_timestamp)
+    .get(aas.get_timestamp);
 
 };

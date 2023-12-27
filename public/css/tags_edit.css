@@ -1,0 +1,166 @@
+legend {
+    padding: 2px 5px;
+    background-color: #0073a4;
+    color: white;
+}
+
+.content {
+    padding: 5px;
+}
+
+.selected {
+    background-color: yellow;
+}
+
+.identify {
+    background-color: greenyellow !important;
+}
+
+.mark {
+    background-color: lightsalmon;
+}
+
+#search {
+    position: absolute;
+    left: 114px;
+    background-color: white;
+    padding-left: 5px;
+    height: 26px;
+}
+.s-input-icon {
+    padding-right: 5px;
+    position: relative;
+    top: 2px;
+}
+.search {
+    font-size: 16px;
+}
+
+.tagList {
+    width: 300px;
+    float: left;
+    height: 794px;
+    overflow-y: scroll;
+    margin-right: 10px;
+}
+
+
+#tagList {
+    margin: 5px 0px;
+    padding: 0px 5px;
+}
+
+#tagList span {
+    display: inline-block;
+    width: 100px;
+}
+
+#tagList li {
+    list-style: none;
+}
+
+#tagList li:hover {
+    background-color: lightblue;
+}
+
+#tags input:invalid {
+    border: 1px solid red;
+}
+
+.tag, .rights {
+    width: 538px;
+    position: relative;
+    margin-bottom: 5px;
+}
+.tag {
+    height: 160px;
+}
+.rights {
+    height:608px;
+}
+label {
+  display: inline-block;
+  width: 100px;
+  margin-bottom: 10px;
+  vertical-align: top;
+}
+
+.button {
+    position: absolute;
+    top: -24px;
+    background-color: cornflowerblue;
+    width: 30px;
+    border: 1px solid black;
+    color: white;
+    padding: 3px 6px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button[name=delete] {
+  left: 454px;
+}
+
+.button[name=add] {
+    left: 505px;
+}
+
+.button[name="cardRepl"] {
+    position: unset;
+    width: fit-content;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.button[name="retRepl"] {
+    top: 124px;
+    left: 236px;
+    width: fit-content;
+}
+
+.secondCol {
+    position: relative;
+    top: -28px;
+    left: 230px;
+    height: 0px;
+}
+
+.hasRights, .availableRights {
+    height: calc(100% - 20px);
+    width: 230px;
+    border: 1px dotted gray;
+}
+
+.list_rights_Has, .list_rights_Available {
+    max-height: 100%;
+    overflow-y: auto;
+    padding-left: 5px;
+    margin-top: 0px;
+    cursor: pointer;
+}
+
+.hasRights {
+    float: left;
+}
+.availableRights {
+    margin-left: 280px;
+}
+
+.disabled {
+    color: gray;
+}
+
+.blocked {
+    color: blue;
+}
+
+.text {
+    width: 50ch;
+}
+.rfid {
+    width: 13ch;
+}
+.date {
+    width: 15ch;
+}

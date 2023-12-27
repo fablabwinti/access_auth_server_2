@@ -1,0 +1,15 @@
+//- tags_edit.pug
+extends layout
+
+block js
+    script(src='js/jquery-3.6.0.min.js')
+    script(src='js/fontkit.umd.min.js')
+    script(src='js/tags_edit.js' type='module')
+
+block append css
+    link(rel='stylesheet' type='text/css' href='css/tags_edit.css')
+
+block content
+    h1 #{message}
+
+

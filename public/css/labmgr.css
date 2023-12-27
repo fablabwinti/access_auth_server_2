@@ -1,0 +1,288 @@
+/* 
+    Created on : 29-Jul-2022, 12:00:35
+    Author     : t_jak
+*/
+h2 {
+    font-size: 15pt;
+    margin: 10px 0;
+}
+
+#invoice {
+    position: absolute;
+    left: 638px;
+    border: 2px solid gray;
+    top: 161px;
+    height: 80px;
+    width: 595px;
+    padding: 22px 22px;
+}
+.iTitle {
+    position: absolute;
+    top: -17px;
+    border: 2px solid gray;
+    background-color: white;
+    font-size: 15pt;
+    padding: 2px 27px;
+    left: 286px;
+}
+.control {
+    display: inline-block;
+    width: 200px;
+}
+.data {
+    position: absolute;
+    width: fit-content;
+    left: 200px;
+    top: 25px;
+    margin-left: 10px;
+}
+.line1, .line2, .line3 {
+    height: 30px;
+    display: inline-flex;
+}
+.valign {
+    align-self: center;
+}
+.iid {
+    width: 50px;
+    text-align: right;
+    padding: 0px 4px;
+}
+.iPayed {
+    display: inline-block;
+    width: 130px;
+    padding: 0px 4px;
+    margin: 0px 32px;
+    font-weight: bold;
+    font-size: 20px;
+}
+.iTotal {
+    width: 120px;
+    text-align: right;
+    padding: 0 4px;
+}
+.iLabmgr {
+    text-align: center;
+    width: 20ch;
+}
+.text {
+    display: inline-block;
+    border: 1px solid gray;
+    height: 20px;
+    margin: 0 4px;
+}
+.button {
+    display: inline-block;
+    background-color: #0073a4;
+    color: white;
+    text-align: center;
+    margin: 0px 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+.iCreate.disabled {
+    color: darkblue;
+}
+.oldInv {
+    margin-top: 38px;
+}
+#listInv {
+    position: absolute;
+    background-color: wheat;
+    z-index: 10;
+    left: -294px;
+    top: 87px;
+    border: 1px solid gray;
+    box-shadow: 3px 3px lightskyblue;
+    width: 933px;
+}
+#listInv tr {
+    cursor: pointer;
+}
+#listInv tr:hover {
+    background-color: yellow;
+}
+
+#sales {
+    margin-top: 15px;
+}
+.pop {
+    position: absolute;
+    left: 100px;
+    margin: 0;
+    padding-left: 17px;
+    border: 1px solid gray;
+    border-top: 0;
+    background-color: azure;
+    max-height: 300px;
+    overflow-y: auto;
+    width: 183px;
+    box-shadow: 3px 3px lightgrey;
+    z-index: 10;
+}
+.pop li {
+    cursor: pointer;
+}
+
+form[name=tagInput] {
+    position: relative;
+}
+thead {
+    display: block;
+    position: relative;
+}
+
+tbody {
+    display: block;
+    overflow-y: scroll;
+    max-height: 200px;
+}
+
+.editLog {
+    background-color: azure;
+    box-shadow: 4px 4px lightgray;
+    position: absolute;
+    top: 2px;
+    z-index: 10;
+}
+.editLog .timestamp {
+    padding: 0 4px !important;
+}
+.editLog tr:nth-child(even) {
+    background-color: lightblue;
+}
+
+.tagid {
+    width: 85px;
+}
+.lid {
+    width: 50px;
+    text-align: right;
+}
+.timestamp, .createdAt, .payedAt, .updatedAt, .iDate {
+    width: 124px;
+    text-align: center;    
+}
+.items {
+    width: 355px;
+}
+.machines, .mid {
+    width: 200px;
+}
+.mid {
+    padding: 0 6px;
+}
+.quantity {
+    width: 65px;
+    text-align: right;
+}
+.selected .quantity {
+    padding: 0 3px;
+}
+.price, .aid, .total {
+    width: 50px;
+}
+td.price, td.total {
+    text-align: right;
+}
+.usage {
+    width: 50px;
+}
+td.usage {
+    text-align: right;
+}
+.period {
+    width: 50px;
+}
+td.period {
+    text-align: right;
+}
+.minp {
+    width: 36px;
+    text-align: right;
+}
+.name {
+    width: 120px;
+}
+.paymode {
+    width: 63px;
+}
+.collectedBy {
+    width: 160px;
+}
+.unit, .tid {
+    width: 50px;
+}
+.event {
+    width: 80px;
+}
+.eid {
+    width: 236px;
+}
+.sum, .sumTotal {
+    width: 70px;
+}
+td.sum {
+    text-align: right;
+}
+.remarks {
+    width: 200px;
+}
+.editLog .remarks, #sales .selected .remarks {
+    padding: 0 3px;
+}
+
+.add, .add_sales {
+    width: 40px;
+    cursor: pointer;
+}
+.del {
+    width: 40px;
+}
+tr .del {
+    cursor: pointer;
+}
+tr editSales {
+    padding: 0 0;
+}
+
+.selected {
+    background-color: yellow !important;
+}
+
+#machineTime tr {
+    position: relative;
+}
+.totalLine {
+    width: 1163px;
+}
+.totalLine {
+    display: inline-block;
+    font-weight: bold;
+}
+.totalLabel {
+    display: inline-block;
+    padding-right: 10px;
+}
+#mtime .totalLabel {
+    padding-left: 727px;
+}
+#psales .totalLabel {
+    padding-left: 759px;
+ }
+#grandTotalLine .totalLabel {
+    padding-left: 752px;
+    padding-top: 15px;
+}
+  
+.sumTotal {
+    display: inline-block;
+    font-weight: bold;
+    border-top: 2px solid black;
+    text-align: right;
+    padding: 0 8px;
+}
+#grandTotalLine .sumTotal {
+    border-bottom: 4px double black;
+}
+

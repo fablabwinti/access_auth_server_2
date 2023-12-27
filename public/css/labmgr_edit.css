@@ -1,0 +1,128 @@
+/* 
+    Created on : 15-Nov-2022, 17:00:35
+    Author     : t_jak
+*/
+
+/*h1 {
+    margin: 15px 0px 0px 0px;
+}*/
+legend {
+    padding: 2px 5px;
+    background-color: #0073a4;
+    color: white;
+}
+
+.content {
+    padding: 5px;
+}
+
+.selected {
+    background-color: yellow;
+}
+
+.identify {
+    background-color: greenyellow !important;
+}
+
+.labmgrList {
+    width: 300px;
+    float: left;
+    height: 794px;
+    overflow-y: scroll;
+    margin-right: 10px;
+}
+
+.labmgr, .knowledge, .roles {
+    width: 540px;
+}
+
+.knowledge, .roles{
+    margin-left: 332px;
+    margin-top: 5px;
+}
+
+.labmgr input {
+    width: 430px;
+}
+
+#labmgrList {
+    margin: 5px 0px;
+    padding: 0px 5px;
+}
+
+#labmgr li {
+    list-style: none;
+}
+
+#labmgr li:hover {
+    background-color: lightblue;
+}
+
+.knowldgUser, .hasRoles {
+    float: left;
+}
+
+.knowldgAvailable, .availableRoles {
+  margin-left: 280px;
+}
+
+.knowldgUser, .knowldgAvailable, .hasRoles, .availableRoles {
+    width: 230px;
+    border: 1px dotted gray;
+}
+
+.knowldgUser, .knowldgAvailable {
+    height: 400px;
+}
+
+.hasRoles, .availableRoles {
+    height: 164px;
+}
+
+.list_user_kn_Has, .list_user_kn_Available, .list_user_roles_Has, .list_user_roles_Available {
+  max-height: 100%;
+  overflow-y: auto;
+  padding-left: 5px;
+  margin-top: 0px;
+  cursor: pointer;
+}
+
+.list_user_kn_Has li, .list_user_kn_Available li, .list_user_roles_Has li, .list_user_roles_Available li {
+    cursor: pointer;
+}
+.roles li.disabled, .knowledge li.disabled {
+    color: gray;
+}
+
+.button {
+    position: absolute;
+    top: 172px;
+    background-color: cornflowerblue;
+    width: 30px;
+    border: 1px solid black;
+    color: white;
+    padding: 3px 6px;
+    text-align: center;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#delete {
+  left: 856px;
+}
+
+#new {
+    left: 802px;
+}
+
+.photo {
+    width: 310px;
+    position: absolute;
+    left: 926px;
+    top: 173px;
+}
+
+.photocanvas {
+    width: 300px;
+    height: 400px;
+}

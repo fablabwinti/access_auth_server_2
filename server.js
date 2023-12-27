@@ -1,13 +1,22 @@
-'use strict';
-const config = require('./config');
-const express = require('express');
-const https = require('https');
+/*
+ * Access Auth Server
+ * Server for Labmanager Bookeeping
+ */
+"use strict";
 const fs = require('fs');
+const https = require('https');
+const express = require('express');
+const config = require('./config');
+
 const options = {
   key: fs.readFileSync("keys/privkey.pem"),
   cert: fs.readFileSync("keys/cert.pem")
 };
-const mysql = require('mysql');
+/*const options = {
+    key: fs.readFileSync("keys/localhost.key"),
+    cert: fs.readFileSync("keys/localhost.pem")
+};*/
+//const mysql = require('mysql');
 //const model = require('./api/models/aasModel');
 const bodyParser = require('body-parser');
 const session = require('express-session');
@@ -24,7 +33,7 @@ app.use(helmet({
 }));
 
 // init bodyParser
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 app.use(bodyParser.json());
 
 // Add headers

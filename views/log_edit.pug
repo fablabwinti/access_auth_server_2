@@ -45,7 +45,10 @@ block content
                     -else
                         option(value=article.aid selected=(article.aid==log.aid)) #{article.title}
         div.form-group
+            label(for='quantity') Quantity:
+            input#quantity.form-control(type='text', name='quantity', value=(undefined===log.quantity ? '' : log.quantity))
+        div.form-group
             label(for='remarks') Remarks:
-            input#remarks.form-control(type='text', name='remarks' value=(undefined===remarks ? '' : log.remarks))
+            input#remarks.form-control(type='text', name='remarks' value=(undefined===log.remarks ? '' : log.remarks))
         div.form-group
             button.btn.btn-primary(type='submit') Save
