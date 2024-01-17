@@ -163,21 +163,8 @@ tbody {
     width: 124px;
     text-align: center;    
 }
-.items {
-    width: 355px;
-}
-.machines, .mid {
-    width: 200px;
-}
-.mid {
-    padding: 0 6px;
-}
-.quantity {
-    width: 65px;
-    text-align: right;
-}
-.selected .quantity {
-    padding: 0 3px;
+.machines, .items {
+    width: 280px;
 }
 .price, .aid, .total {
     width: 50px;
@@ -185,20 +172,8 @@ tbody {
 td.price, td.total {
     text-align: right;
 }
-.usage {
-    width: 50px;
-}
-td.usage {
-    text-align: right;
-}
-.period {
-    width: 50px;
-}
-td.period {
-    text-align: right;
-}
-.minp {
-    width: 36px;
+.period, .quantity, .minp, .minppr, .usage, .periods, .price, .sum {
+    width: 70px;
     text-align: right;
 }
 .name {
@@ -211,7 +186,7 @@ td.period {
     width: 160px;
 }
 .unit, .tid {
-    width: 50px;
+    width: 70px;
 }
 .event {
     width: 80px;
@@ -219,7 +194,13 @@ td.period {
 .eid {
     width: 236px;
 }
-.sum, .sumTotal {
+#machineTime .sum {
+    width: 112px;
+}
+#psales .sum {
+    width: 70px;
+}
+.sumTotal {
     width: 70px;
 }
 td.sum {
@@ -236,6 +217,18 @@ td.sum {
     width: 40px;
     cursor: pointer;
 }
+th.add {
+    color: lightgreen;
+}
+td.add {
+    color: green;
+}
+.add{
+    width: 40px;
+    cursor: pointer;
+    color: lightgreen;
+}
+
 .del {
     width: 40px;
 }
@@ -262,16 +255,12 @@ tr editSales {
 }
 .totalLabel {
     display: inline-block;
+    width: 112px;
+    padding-left: 951px;
     padding-right: 10px;
+    text-align: right;
 }
-#mtime .totalLabel {
-    padding-left: 727px;
-}
-#psales .totalLabel {
-    padding-left: 759px;
- }
 #grandTotalLine .totalLabel {
-    padding-left: 752px;
     padding-top: 15px;
 }
   

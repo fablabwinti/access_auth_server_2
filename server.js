@@ -1,6 +1,8 @@
 /*
  * Access Auth Server
  * Server for Labmanager Bookeeping
+ * 
+ * 16.01.2024   Tja  Removed Helmet to reduce complexity because we use this server only in local network
  */
 "use strict";
 const fs = require('fs');
@@ -20,18 +22,19 @@ const options = {
 //const model = require('./api/models/aasModel');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const helmet = require('helmet');
-var app = express();
+const app = express();
 
 // init helmet (header security)
 // (but not HSTS when used on localhost as that will break all other non-HTTPS services on your machine)
+/*
+const helmet = require('helmet');
 app.use(helmet({
     hsts: {
         maxAge: 864000,
         setIf: function(req, res) { return !(req.headers.host && req.headers.host.includes('localhost')); }
     }
 }));
-
+*/
 // init bodyParser
 app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 app.use(bodyParser.json());
