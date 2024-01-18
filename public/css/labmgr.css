@@ -172,9 +172,12 @@ tbody {
 td.price, td.total {
     text-align: right;
 }
-.period, .quantity, .minp, .minppr, .usage, .periods, .price, .sum {
+.period, .quantity, .minp, .minppr, .usage, .periods, .price {
     width: 70px;
     text-align: right;
+}
+.sum {
+    width: 112px;
 }
 .name {
     width: 120px;
@@ -194,12 +197,6 @@ td.price, td.total {
 .eid {
     width: 236px;
 }
-#machineTime .sum {
-    width: 112px;
-}
-#psales .sum {
-    width: 70px;
-}
 .sumTotal {
     width: 70px;
 }
@@ -207,7 +204,7 @@ td.sum {
     text-align: right;
 }
 .remarks {
-    width: 200px;
+    width: 156px;
 }
 .editLog .remarks, #sales .selected .remarks {
     padding: 0 3px;

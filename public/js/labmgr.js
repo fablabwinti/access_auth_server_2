@@ -289,17 +289,21 @@ labmgr = {
             let cdate = null;
             let rec = {};
             let sum = 0;
+            var loggedIn = false;
             for (i = 0; i < data.length; i++) {
                 let cd = String(data[i].timestamp).slice(0, 10);
-                if (cdate !== cd) {
+                if (cdate !== cd && !loggedIn) {
                     cdate = cd;
                     if (ixInv >= 0) {   // second and following days
                         let minutes = Math.ceil(sumDay / 60000);
-                        let periods = Math.ceil(minutes / rec.period);
-                        if (periods < rec.min_periods) {
-                            periods = rec.min_periods;
+                        let periods = 0;
+                        if (minutes > 0) {
+                            periods = Math.ceil(minutes / rec.period);
+                            if (periods < rec.min_periods) {
+                                periods = rec.min_periods;
+                            }
+                            sum = (rec.minp_price===null ? rec.price : rec.minp_price) * rec.min_periods;
                         }
-                        sum = (rec.minp_price===null ? rec.price : rec.minp_price) * rec.min_periods;
                         if (periods > rec.min_periods) {
                             sum += (periods - rec.min_periods) * rec.price;
                         }
@@ -308,6 +312,7 @@ labmgr = {
                         inv[ixInv].periods = periods;
                         inv[ixInv].sum = sum;
                         sumMachines += sum;
+                        sum = 0;
                     }
                     ixInv++;
                     inv[ixInv] = {};
@@ -329,17 +334,21 @@ labmgr = {
                 rec = data[i];
                 if (rec.eid === 4) { // login
                     start = new Date(rec.timestamp);
-                } else if (rec.eid === 5) { // logout
+                } else if (rec.eid === 5 && !loggedIn) { // logout
+                    loggedIn = false;
                     let usage = new Date(rec.timestamp) - start;
                     sumDay += usage; // calc minutes
                 }
             }
             let minutes = Math.ceil(sumDay / 60000);
-            let periods = Math.ceil(minutes / rec.period);
-            if (periods < rec.min_periods) {
-                periods = rec.min_periods;
+            let periods = 0;
+            if (minutes > 0) {
+                periods = Math.ceil(minutes / rec.period);
+                if (periods < rec.min_periods) {
+                    periods = rec.min_periods;
+                }
+                sum = (rec.minp_price===null ? rec.price : rec.minp_price) * rec.min_periods;
             }
-            sum = (rec.minp_price===null ? rec.price : rec.minp_price) * rec.min_periods;
             if (periods > rec.min_periods) {
                 sum += (periods - rec.min_periods) * rec.price;
             }
@@ -349,6 +358,7 @@ labmgr = {
                 inv[ixInv].periods = periods;
                 inv[ixInv].sum = sum;
                 sumMachines += sum;
+                sum = 0;
             }
 
             labmgr.dispTable(inv, 'machineTime', '#mtime', tid);
@@ -480,6 +490,16 @@ labmgr = {
                     case 'sum':
                         oTh.attr('title', 'Price for used Machine Time');
                         break;
+                }
+            }
+            if (tname === 'sales') {
+                switch (key) {
+                    case 'minp':
+                        oTh.attr('title', 'Minimum quantity');
+                        break;
+                    case 'sum':
+                        oTh.attr('title', 'Price for ordered Quantity');
+                        break;
                     case 'add':
                         oTh.click((event) => {
                             if ($('#invoice .iid').text() > 0) {
@@ -493,17 +513,7 @@ labmgr = {
                                 labmgr.processSales(t, tid, true);
                             }
                         });
-                }
-            }
-            if (tname === 'sales') {
-                switch (key) {
-                    case 'minp':
-                        oTh.attr('title', 'Minimum quantity');
-                        break;
-                    case 'sum':
-                        oTh.attr('title', 'Price for ordered Quantity');
-                        break;
-                }
+                    }
             }
         }
 
@@ -515,8 +525,6 @@ labmgr = {
                 for (const [key, value] of Object.entries(t[i])) {
                     let oTd = $('<td>').addClass(key).appendTo(oTr); ;
                     switch (key) {
-                        case 'usageEff':
-                            continue;
                         case 'lid':
                             oTd.attr('tid', tid);
                             oTd.text(value);
@@ -922,7 +930,7 @@ labmgr = {
         });
 
         let table = '#machineTime';
-        let prop = 0.5;     // propotion from screen pixels to pdf pixels
+        let prop = 0.47;    // propotion from screen pixels to pdf pixels
         let fSize = 7;      // font size
         y -= 25;
         
@@ -988,15 +996,12 @@ labmgr = {
             table = '#sales';
             y = labmgr.printTable(table, page, prop, trebuc, fSize, x, y, rgb(0, 0, 0), 9);
             // draw total line
-            pos = x;
-            cols = $(table+' td');
-            sumCol = 7;
+            let pos = x;
+            let cols = $(table+' td');
+            let sumCol = 8;
             // calulate left distance of sum column
             for (let i=0; i<sumCol; i++) {
                 let w = $(cols[i]).width() * prop;
-                if ($(cols[i]).attr('class') === 'items') {
-                    w = 167;
-                }
                 pos += w + 5;
             }
             sWidth = $(cols[sumCol]).width() * prop;
@@ -1103,6 +1108,10 @@ labmgr = {
         let a = 0;
     },
     
+    /*
+     * printTable takes the information to print from the html table
+     * the column width is taken from the css width value and multiplied by the prop variable
+     */
     printTable: function(table, page, prop, font, fSize, x, y, color, maxCol) {
         if ($(table).length > 0) {
             let x1 = x;
@@ -1111,9 +1120,6 @@ labmgr = {
                 if (i < maxCol) {
                     let je = $(e);
                     let w = je.width() * prop;
-                    if (je.attr('class') === 'items') {
-                        w = 167;
-                    }
                     page.drawText(je.text(), {
                         x: x1,
                         y: y,
@@ -1139,9 +1145,6 @@ labmgr = {
                     if (i < maxCol) {
                         let je = $(e);
                         let w = je.width() * prop;
-                        if (je.attr('class') === 'items') {
-                            w = 167;
-                        }
                         let y1 = y;
                         let text = je.text();
                         let x2 = x1;
