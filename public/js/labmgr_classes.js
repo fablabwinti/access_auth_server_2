@@ -70,17 +70,19 @@
         $(`.list_${p.manyTable}_Has`).empty();
         $(`.list_${p.manyTable}_Available li`).show();
         let lKey = p.left.curKey();
-        $.post('/labmgr', { qName: 'getHMTRleft', '§1': p.right.keyName, '§2': p.right.name, '§3': p.manyTable, '§4': p.right.table, '§5': p.left.keyName, '§6': lKey }, (data) => {
-            for (let oLeft of data) {
-                let el =$('<li>')
-                        .text(oLeft[this.par.right.name])
-                        .attr(this.par.right.keyName, oLeft[this.par.right.keyName])
-                        .click(this, this.removeKey)
-                        .appendTo(`.list_${this.par.manyTable}_Has`);
-                if (this.ds) el.addClass('disabled');    
-                $(`.list_${this.par.manyTable}_Available li[${this.par.right.keyName}=${oLeft[this.par.right.keyName]}]`).hide();
-            }
-        });
+        if (lKey) {
+            $.post('/labmgr', { qName: 'getHMTRleft', '§1': p.right.keyName, '§2': p.right.name, '§3': p.manyTable, '§4': p.right.table, '§5': p.left.keyName, '§6': lKey }, (data) => {
+                for (let oLeft of data) {
+                    let el =$('<li>')
+                            .text(oLeft[this.par.right.name])
+                            .attr(this.par.right.keyName, oLeft[this.par.right.keyName])
+                            .click(this, this.removeKey)
+                            .appendTo(`.list_${this.par.manyTable}_Has`);
+                    if (this.ds) el.addClass('disabled');    
+                    $(`.list_${this.par.manyTable}_Available li[${this.par.right.keyName}=${oLeft[this.par.right.keyName]}]`).hide();
+                }
+            });
+        }
     };
     addKey(event) {
         if (!event.data) return;
