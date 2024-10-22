@@ -2073,9 +2073,29 @@ exports.create_a_log = function(req, res) {
         //res.json(req.body);
         // Insert the received log entry
         connection.query('INSERT INTO logs SET ?', req.body, function(error, results, fields) {
+            if (error) {
+                if (error.sqlMessage) {
+                    // There is something invalid about the log entry that is
+                    // caught by SQL validation, e.g. unknown tid. There is no
+                    // use rejecting it, as the controller will just try to send
+                    // it again. Don't just drop it either, because it may be
+                    // helpful for troubleshooting. Accept it as a "tag error"
+                    // and put all information into the remarks.
+                    let remark = 'Invalid log entry ' + JSON.stringify(req.body) + ' error ' + JSON.stringify(error);
+                    console.log(remark);
+                    connection.query('INSERT INTO logs SET eid=6, remarks=?', [remark], function(error, results, fields) {
+                        if (error) res.status(500).send(error);
+                        else res.json(results);
+                    });
+                }
+                else {
+                    res.status(500).send(error);
+                }
+            }
+            else {
+                res.json(results);
+            }
             connection.release();
-            if (error) throw error;
-            res.json(results);
         });
         
         connection.on('error', function(err) {      
