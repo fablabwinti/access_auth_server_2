@@ -1598,7 +1598,7 @@ exports.list_all_machine_tags = function (req, res) {
             offset = ' OFFSET ' + mysql.escape(req.query.offset);
         }
 
-        connection.query('SELECT t.tid, t.uid, t.name, UNIX_TIMESTAMP(t.valid_from) start, UNIX_TIMESTAMP(t.valid_until) end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE t.blocked<1 AND t.valid_until>=NOW() AND r.mid=? ' + limit + offset, req.params.mid, function (error, rows, fields) {
+        connection.query('SELECT t.tid, t.uid, t.name, CASE WHEN t.valid_from IS NULL THEN 1 ELSE UNIX_TIMESTAMP(t.valid_from) END start, CASE WHEN t.valid_until IS NULL THEN 4294967295 ELSE UNIX_TIMESTAMP(t.valid_until) END end FROM tags t LEFT JOIN rights r ON t.tid=r.tid WHERE t.blocked<1 AND (t.valid_until IS NULL OR t.valid_until>=NOW()) AND r.mid=? ' + limit + offset, req.params.mid, function (error, rows, fields) {
             connection.release();
             console.log(rows);
             if (error) {
