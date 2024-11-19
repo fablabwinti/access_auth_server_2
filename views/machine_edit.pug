@@ -7,7 +7,7 @@ block content
     form(method='POST' action='/machine_edit' + (undefined===machine ? '' : '?mid=' + machine.mid))
         div.form-group
             label(for='name') Name:
-            input#name.form-control(type='text', name='name' autofocus value=(undefined===machine ? NULL : machine.name))
+            input#name.form-control(type='text', name='name' autofocus value=(undefined===machine ? '' : machine.name))
         div.form-group
             label(for='config') Config:
             input#config.form-control(type='text', name='config' value=(undefined===machine ? '' : machine.config))
@@ -30,9 +30,6 @@ block content
         div.form-group
             label(for='min_periods') Min. Periods:
             input#min_periods.form-control(type='text', name='min_periods' value=(undefined===machine ? '' : machine.min_periods))
-        div.form-group
-            label(for='minp_price') Minp. Price:
-            input#minp_price.form-control(type='text', name='minp_price' value=(undefined===machine ? '' : machine.minp_price))
         div.form-group
             label(for='offdelay') Offdelay:
             input#offdelay.form-control(type='text', name='offdelay' value=(undefined===machine ? '' : machine.offdelay))

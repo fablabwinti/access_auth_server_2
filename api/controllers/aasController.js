@@ -10,7 +10,7 @@
  * 
  */
 const config = require('../../config');
-var mysql = require('mysql');
+var mysql = require('mysql2');
 const isArrayBuffer = require('is-array-buffer');
 var pool = mysql.createPool({
     connectionLimit: 100, //important
@@ -19,7 +19,7 @@ var pool = mysql.createPool({
     user: config.dbUser, //'flauth',
     password: config.dbPass, //'FabLab',
     port: config.dbPort, //'3307',
-    timezone: 'UTC',
+    timezone: '+00:00',
     debug: false,
     //checkExpirationInterval: 900000, // = 15 Min. How frequently expired sessions will be cleared; milliseconds:
     //xpiration: 1800000, // = 30 Min. The maximum age of a valid session; milliseconds:
@@ -363,7 +363,7 @@ exports.machines = function (req, res) {
         //console.log('connected as id ' + connection.threadId);
 
         var machines = Array();
-        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods, minp_price, offdelay, watchdog FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function (error, rows, fields) {
+        connection.query('SELECT mid, m.name, config, price, period, u.name units, min_periods, offdelay, watchdog FROM machines m LEFT JOIN price_units u ON m.uid=u.uid', function (error, rows, fields) {
             if (error) {
                 res.send(error);
             } else {
@@ -1064,9 +1064,8 @@ exports.machine_edit = function (req, res) {
                     return;
                 }
                 //console.log('connected as id ' + connection.threadId);
-                if (req.body.price==='') req.body.price = null;
-                if (req.body.minp_price==='') req.body.minp_price = null;
-                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, minp_price=?, offdelay=?, watchdog=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.minp_price, req.body.offdelay, req.body.watchdog, req.query.mid], function (error, result) {
+
+                connection.query('UPDATE machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, offdelay=?, watchdog=? WHERE mid=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.offdelay, req.body.watchdog, req.query.mid], function (error, result) {
                     if (error) {
                         res.send(error);
                     } else {
@@ -1090,7 +1089,7 @@ exports.machine_edit = function (req, res) {
                 }
                 //console.log('connected as id ' + connection.threadId);
 
-                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, minp_price=?, offdelay=?, watchdog=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, minp_price, req.body.offdelay, req.body.watchdog], function (error, result) {
+                connection.query('INSERT machines SET name=?, config=?, price=?, period=?, uid=?, min_periods=?, offdelay=?, watchdog=?', [req.body.name, req.body.config, req.body.price, req.body.period, req.body.uid, req.body.min_periods, req.body.offdelay, req.body.watchdog], function (error, result) {
                     connection.release();
                     if (error) {
                         res.send(error);
@@ -1587,7 +1586,7 @@ exports.list_all_machine_tags = function (req, res) {
             res.json({"code": 100, "status": "Error in connection database"});
             return;
         }
-        console.log('list tags for machine ' + req.params.mid);
+        //console.log('connected as id ' + connection.threadId);
 
         var limit = '';
         if (req.query.limit) {
@@ -1678,7 +1677,7 @@ exports.read_a_machine = function (req, res) {
             res.json({"code": 100, "status": "Error in connection database"});
             return;
         }
-        console.log('query machine id ' + req.params.mid);
+        //console.log('connected as id ' + connection.threadId);
 
         connection.query('SELECT * FROM machines WHERE mid=?', req.params.mid, function (error, rows, fields) {
             connection.release();

@@ -1,8 +1,10 @@
 # access_auth_server
-Webserver part for the user access authorisation solution 
+
+Webserver part for the user access authorisation solution
 
 # installation
-You need to install MySQL and NodeJS V6 to run this server. 
+
+You need to install MySQL and NodeJS V6 to run this server.
 
 - Get MySQL from https://dev.mysql.com/downloads/installer/
 - Install it

@@ -68,7 +68,7 @@ const tedit = {
             }, appendTo: '.tag'}, tedit.ds);
         $('input[name="repl_by_uid"]').parent().hide();
         new Input({label: 'Full Name:', name: 'name', class: 'text', attrs: {required: false}, appendTo: '.tag'}, tedit.ds);
-        new Input({label: 'Valid from:', name: 'valid_from', type: 'date', class: 'date', appendTo: '.tag'}, tedit.ds);
+        let oFrom = new Input({label: 'Valid from:', name: 'valid_from', type: 'date', class: 'date', appendTo: '.tag'}, tedit.ds);
         new Input({label: 'Valid until:', name: 'valid_until', type: 'date', class: 'date', divcl: 'secondCol', appendTo: '.tag'}, tedit.ds);
         new Button({name: 'cardRepl', label: 'Card Replacement', title: 'Assign a replacement for a lost card', master: '.tag', click: this.replaceCard});
         new Input({label: 'Repl. for:', name: 'repl_for_uid', type: 'number', class: 'rfid', attrs: {
@@ -224,7 +224,21 @@ const tedit = {
                 $('.button[name="cardRepl"]').enable();
                 $('.button[name="delete"]').enable();
             }
-            tedit.oTagRights.initLeft();
+            let oFrom = $('INPUT[name="valid_from"]');
+            let oTo = $('INPUT[name="valid_until"]');
+            oFrom.on('change', () => {
+                if (oTo.val() < oFrom.val()) {
+                    oTo.val(oFrom.val());
+                }
+            });
+            oTo.on('change', () => {
+                if (oTo.val() < oFrom.val()) {
+                    oTo[0].setCustomValidity('Valid until must be later as Valid from');
+                } else {
+                    oTo[0].setCustomValidity('');
+                };
+            });
+            tedit.oTagRights.initLeft();   
         });
     },
 

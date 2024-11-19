@@ -269,99 +269,49 @@ labmgr = {
         labmgr.sumGrand = 0;
         $('#psales').empty();
         let qiid;
-        let oldInvoice = false;
         if (!iid) {
             qiid = 'IS NULL';
         } else {
             qiid = '= ' + iid;
         }
         $.post('/labmgr', {qName: 'invoiceMachines', '§1': tid, '§2': qiid}, data => {
-            let odldInvoice = oldInvoice;
             $('#mtime').empty();
             $('#sales').empty();
             $('<h2>Machine Time</h2>').appendTo('#mtime');
+            labmgr.hasSales = false;
             let sumMachines = 0;
-            let sumDay = 0;
-            let inv = [];
-            let ixInv = -1;
-            let start = 0;
-            let end = 0;
-            let cdate = null;
-            let rec = {};
-            let sum = 0;
-            var loggedIn = false;
+            let start, end, usage, min_usage, iStart;
+            start = null;
             for (i = 0; i < data.length; i++) {
-                let cd = String(data[i].timestamp).slice(0, 10);
-                if (cdate !== cd && !loggedIn) {
-                    cdate = cd;
-                    if (ixInv >= 0) {   // second and following days
-                        let minutes = Math.ceil(sumDay / 60000);
-                        let periods = 0;
-                        if (minutes > 0) {
-                            periods = Math.ceil(minutes / rec.period);
-                            if (periods < rec.min_periods) {
-                                periods = rec.min_periods;
-                            }
-                            sum = (rec.minp_price===null ? rec.price : rec.minp_price) * rec.min_periods;
-                        }
-                        if (periods > rec.min_periods) {
-                            sum += (periods - rec.min_periods) * rec.price;
-                        }
-                        inv[ixInv].machines = rec.machines;
-                        inv[ixInv].usage = minutes;
-                        inv[ixInv].periods = periods;
-                        inv[ixInv].sum = sum;
-                        sumMachines += sum;
-                        sum = 0;
-                    }
-                    ixInv++;
-                    inv[ixInv] = {};
-                    rec = data[i];
-                    inv[ixInv] = {
-                        lid: rec.lid,
-                        timestamp: rec.timestamp, 
-                        machines: rec.machines,
-                        period: rec.period,
-                        price: rec.price,
-                        minp: rec.min_periods,
-                        minppr: rec.minp_price,
-                        usage: 0,
-                        periods: 0,
-                        sum: 0
-                    }
-                    sumDay = 0;
+                let rec = data[i];
+                if (rec.event === 'Product Sale') {
+                    labmgr.hasSales = true;
+                    continue;
                 }
-                rec = data[i];
-                if (rec.eid === 4) { // login
+                if (rec.event === 'Tag login') {
+                    iStart = i;
                     start = new Date(rec.timestamp);
-                } else if (rec.eid === 5 && !loggedIn) { // logout
-                    loggedIn = false;
-                    let usage = new Date(rec.timestamp) - start;
-                    sumDay += usage; // calc minutes
+                } else if (data[i].event === 'Tag logout') {
+                    if (start === null) {
+                        // logout without login found
+                        continue    // ignore
+                    }
+                    end = new Date(data[i].timestamp);
+                    usage = Math.ceil((end - start) / 60000);      // result in minutes
+                    data[iStart].usageEff = usage;
+                    usage = Math.ceil(usage / rec.period);
+                    if (usage < rec.minp) {
+                        usage = rec.minp;
+                    }
+                    usage = usage * rec.period;
+                    data[iStart].usage = usage;
+                    let sum = rec.price * usage / rec.period;
+                    data[iStart].sum = sum;
+                    sumMachines += sum;
+                    start = null; //set logout processed
                 }
             }
-            let minutes = Math.ceil(sumDay / 60000);
-            let periods = 0;
-            if (minutes > 0) {
-                periods = Math.ceil(minutes / rec.period);
-                if (periods < rec.min_periods) {
-                    periods = rec.min_periods;
-                }
-                sum = (rec.minp_price===null ? rec.price : rec.minp_price) * rec.min_periods;
-            }
-            if (periods > rec.min_periods) {
-                sum += (periods - rec.min_periods) * rec.price;
-            }
-            if ( data.length > 0) {
-                inv[ixInv].machines = rec.machines;
-                inv[ixInv].usage = minutes;
-                inv[ixInv].periods = periods;
-                inv[ixInv].sum = sum;
-                sumMachines += sum;
-                sum = 0;
-            }
-
-            labmgr.dispTable(inv, 'machineTime', '#mtime', tid);
+            labmgr.dispTable(data, 'machineTime', '#mtime', tid);
             if (sumMachines === 0) {
                 $('<h3>').text('No open positions').appendTo('#mtime');
                 labmgr.sales(tid, false, iid);
@@ -378,31 +328,28 @@ labmgr = {
                         .text(Number(sumMachines).toFixed(2))
                         .appendTo('#mtime .totalLine');
                 labmgr.sumGrand = sumMachines;
-                labmgr.sales(tid, null, iid);
+                if (labmgr.hasSales) {
+                    labmgr.sales(tid, null, iid);
+                }
             }
         });
     },
 
     newSales: function (data) {
         data.push(
-                {lid: '', timestamp: labmgr.dateToMysql(Date.now()), items: '', quantity: '1', price: '', unit: '', minp: '', remarks: '', sum: '', add: 'Add'}
+                {lid: '', timestamp: labmgr.dateToMysql(Date.now()), items: '', quantity: '1', price: '', unit: '', minp: '', sum: '', remarks: '', add: 'Add'}
         );
     },
 
     sales: function (tid, editLast, iid) {
         let qiid;
-        let oldInvoice = false;
         if (!iid) {
             qiid = 'IS NULL';
         } else {
             qiid = '= '+iid;
-            oldInvoice = true;
         }
         $.post('/labmgr', {qName: 'getSales', '§1': tid, '§2': qiid}, data => {
             if (data.length === 0) {    // when no sales recorded yet
-                if (oldInvoice) {
-                    return;
-                }
                 labmgr.newSales(data);
                 editLast = true;         // go into edit mode 
             }
@@ -463,60 +410,38 @@ labmgr = {
                 .appendTo(target);
         let oThead = $('<thead>').appendTo(oTable);
         for (const [key, value] of Object.entries(t[0])) {
+            if (key === 'usageEff') {
+                continue;
+            }
             let oTh = $('<th>')
                     .text(labmgr.capFirst(key))
                     .addClass(key.replace(' ', '_'))
                     .appendTo(oThead);
-            if (tname === 'machineTime') {
-                switch (key) {
-                    case 'period':
-                        oTh.attr('title', 'Minutes per Period');
-                        break;
-                    case 'price':
-                        oTh.attr('title', 'Price per Period');
-                        break;
-                    case 'minp':
-                        oTh.attr('title', 'Minimum Number of Periods');
-                        break;
-                    case 'minppr':
-                        oTh.attr('title', 'Price during Minimum Periods');
-                        break;
-                    case 'usage':
-                        oTh.attr('title', 'Machine usage in Minutes');
-                        break;
-                    case 'periods':
-                        oTh.attr('title', 'Calculated Machine usage in Periods');
-                        break;
-                    case 'sum':
-                        oTh.attr('title', 'Price for used Machine Time');
-                        break;
-                }
-            }
-            if (tname === 'sales') {
-                switch (key) {
-                    case 'minp':
-                        oTh.attr('title', 'Minimum quantity');
-                        break;
-                    case 'sum':
-                        oTh.attr('title', 'Price for ordered Quantity');
-                        break;
-                    case 'add':
-                        oTh.click((event) => {
-                            if ($('#invoice .iid').text() > 0) {
-                                labmgr.blinkRed($(event.target).parent(), 'add');
-                                return;
-                            }
-                            if ($(event.target).parent().parent().attr('id') === 'machineTime') {
-                                labmgr.addLogEntry(tid);
-                            } else {
-                                labmgr.newSales(t);
-                                labmgr.processSales(t, tid, true);
-                            }
-                        });
+            if (key === 'add sales') {
+                $(oTh).click(() => {
+                    if ($('#invoice .iid').text() > 0) {
+                        labmgr.blinkRed($(event.target).parent(), 'add_sales');
+                        return;
                     }
+                    labmgr.newSales(t);
+                    labmgr.sales(tid, true);
+                });
+            }
+            if (key === 'add') {
+                oTh.click((event) => {
+                    if ($('#invoice .iid').text() > 0) {
+                        labmgr.blinkRed($(event.target).parent(), 'add');
+                        return;
+                    }
+                    if ($(event.target).parent().parent().attr('id') === 'machineTime') {
+                        labmgr.addLogEntry(tid);
+                    } else {
+                        labmgr.newSales(t);
+                        labmgr.processSales(t, tid, true);
+                    }
+                });
             }
         }
-
         let oTbody = $('<tbody>').appendTo(oTable);
         for (let i in t) {
             if (t[i].event === undefined || t[i].event === 'Tag login') {
@@ -525,6 +450,8 @@ labmgr = {
                 for (const [key, value] of Object.entries(t[i])) {
                     let oTd = $('<td>').addClass(key).appendTo(oTr); ;
                     switch (key) {
+                        case 'usageEff':
+                            continue;
                         case 'lid':
                             oTd.attr('tid', tid);
                             oTd.text(value);
@@ -533,7 +460,7 @@ labmgr = {
                             oTd.text(labmgr.dateFormat(value));
                             break;
                         case 'usage':
-                            oTd.attr('title', oRow.usage + ' min effective');
+                            oTd.attr('title', oRow.usageEff + ' min effective');
                             oTd.text(value);
                             break;
                         case 'price':
@@ -593,7 +520,6 @@ labmgr = {
         }
     },
 
-    /*
     editMachineLog: function (oRow, tid) {
         $('#machineTime tr').removeClass('selected');
         oRow.addClass('selected');
@@ -733,7 +659,7 @@ labmgr = {
             $('#machineTime tr').removeClass('selected');
             labmgr.calcInvoice($('.lid', oRow).attr('tid'));
         });
-    }, */
+    },
 
     editSales: function (oRow, data, tid) {
         if ($('#sales tr').hasClass('selected')) {
@@ -843,6 +769,14 @@ labmgr = {
         $('td.sum', oRow).text(sum.toFixed(2));
     },
 
+    addLogEntry: function () {
+        let a = 0;
+    },
+
+    editLogEntry: function (oRow) {
+        let a = 1;
+    },
+    
     printInvoice: async function(tid) {
         const PDFDocument = PDFLib.PDFDocument;
         const rgb = PDFLib.rgb;
@@ -930,7 +864,7 @@ labmgr = {
         });
 
         let table = '#machineTime';
-        let prop = 0.47;    // propotion from screen pixels to pdf pixels
+        let prop = 0.5;     // propotion from screen pixels to pdf pixels
         let fSize = 7;      // font size
         y -= 25;
         
@@ -996,12 +930,15 @@ labmgr = {
             table = '#sales';
             y = labmgr.printTable(table, page, prop, trebuc, fSize, x, y, rgb(0, 0, 0), 9);
             // draw total line
-            let pos = x;
-            let cols = $(table+' td');
-            let sumCol = 8;
+            pos = x;
+            cols = $(table+' td');
+            sumCol = 7;
             // calulate left distance of sum column
             for (let i=0; i<sumCol; i++) {
                 let w = $(cols[i]).width() * prop;
+                if ($(cols[i]).attr('class') === 'items') {
+                    w = 167;
+                }
                 pos += w + 5;
             }
             sWidth = $(cols[sumCol]).width() * prop;
@@ -1108,10 +1045,6 @@ labmgr = {
         let a = 0;
     },
     
-    /*
-     * printTable takes the information to print from the html table
-     * the column width is taken from the css width value and multiplied by the prop variable
-     */
     printTable: function(table, page, prop, font, fSize, x, y, color, maxCol) {
         if ($(table).length > 0) {
             let x1 = x;
@@ -1120,6 +1053,9 @@ labmgr = {
                 if (i < maxCol) {
                     let je = $(e);
                     let w = je.width() * prop;
+                    if (je.attr('class') === 'items') {
+                        w = 167;
+                    }
                     page.drawText(je.text(), {
                         x: x1,
                         y: y,
@@ -1145,6 +1081,9 @@ labmgr = {
                     if (i < maxCol) {
                         let je = $(e);
                         let w = je.width() * prop;
+                        if (je.attr('class') === 'items') {
+                            w = 167;
+                        }
                         let y1 = y;
                         let text = je.text();
                         let x2 = x1;

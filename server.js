@@ -1,14 +1,13 @@
 /*
  * Access Auth Server
  * Server for Labmanager Bookeeping
- * 
- * 16.01.2024   Tja  Removed Helmet to reduce complexity because we use this server only in local network
  */
 "use strict";
 const fs = require('fs');
 const https = require('https');
 const express = require('express');
 const config = require('./config');
+const os = require('os');
 
 const options = {
   key: fs.readFileSync("keys/privkey.pem"),
@@ -22,19 +21,12 @@ const options = {
 //const model = require('./api/models/aasModel');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const app = express();
-
-// init helmet (header security)
-// (but not HSTS when used on localhost as that will break all other non-HTTPS services on your machine)
-/*
 const helmet = require('helmet');
-app.use(helmet({
-    hsts: {
-        maxAge: 864000,
-        setIf: function(req, res) { return !(req.headers.host && req.headers.host.includes('localhost')); }
-    }
-}));
-*/
+var app = express();
+
+// init helmet (header security);
+app.use(helmet());
+
 // init bodyParser
 app.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 app.use(bodyParser.json());
@@ -76,5 +68,12 @@ routes(app);
 
 var secureServer = https.createServer(options, app);
 secureServer.listen(config.httpsPort);
+const networkInterfaces = os.networkInterfaces();
 
-console.log('AAS RESTful API server started on: ' + config.httpPort + ' (HTTPS on ' + config.httpsPort + ')');
+Object.keys(networkInterfaces).forEach((interfaceName) => { 
+  networkInterfaces[interfaceName].forEach((iface) => {
+    if ('IPv4' === iface.family && iface.internal === false) {
+      console.log('AAS RESTful API server started on: https://' + iface.address + ':' + config.httpsPort);
+    }
+  });
+});
